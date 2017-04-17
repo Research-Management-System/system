@@ -12,25 +12,15 @@
       <router-link to="/apply"></router-link>
       <router-view></router-view>
     </div> -->
-    <el-row>
+    <el-row class="mid-wrapper">
       <el-col class="side" :span="4">
         <userInfo :userInfo="userInfo"></userInfo>
         <sideNav></sideNav>
-      </el-col>
-      <el-col :span="1">
-        <div class="space">
-          hhh
-        </div>
       </el-col>
       <el-col class="content" :span="18">
         <router-link to="/"></router-link>
         <router-link to="/apply"></router-link>
         <router-view></router-view>
-      </el-col>
-      <el-col :span="1">
-        <div class="space">
-          hhh
-        </div>
       </el-col>
     </el-row>
   </div>
@@ -55,6 +45,7 @@
     .top-wrapper{
       width: 100%;
       height: 50px;
+      min-width: 900px;
       background: #1F2D3D;
       .logo{
         display: inline-block;
@@ -72,11 +63,19 @@
         color: #fff;
       }
     }
-    .el-row{
+    .mid-wrapper{
+      width: 100%;
       height: 100%;
+      min-width: 900px;
+      margin-top: -50px;
+      padding-top: 50px;
       .side{
         height: 100%;
         min-width: 180px;
+      }
+      .content{
+        margin: 20px;
+        min-width: 500px;
       }
     }
     .space{

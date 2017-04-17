@@ -1,9 +1,12 @@
 <template>
   <div class="mod-user">
-    <div class="account">
-      <span>姓名:</span><span>{{userInfo.account}}</span>
+    <div class="account item">
+      <span>账号:</span><span>{{userInfo.account}}</span>
     </div>
-    <div class="type">
+    <div class="name item">
+      <span>姓名:</span><span>{{type[userInfo.type]}}</span>
+    </div>
+    <div class="type item">
       <span>类型:</span><span>{{type[userInfo.type]}}</span>
     </div>
     <div class="menu">
@@ -11,18 +14,18 @@
       <el-button class="logoff" type="text" @click="logOff">注销</el-button>
     </div>
     <el-dialog title="修改密码" v-model="changePassword">
-      <el-form>
-        <el-form-item label="旧密码">
-          <el-input type="password" auto-complete="off" v-model="oldPassword" @focus="hideWarn"></el-input>
-          <span v-if="passwordErr">密码错误!</span>
+      <el-form class="form-box">
+        <el-form-item>
+          <el-input placeholder="旧密码" type="password" auto-complete="off" v-model="oldPassword" @focus="hideWarn"></el-input>
+          <span v-show="passwordErr">密码错误!</span>
         </el-form-item>
-        <el-form-item label="新密码">
-          <el-input type="password" auto-complete="off" v-model="newPassword" @focus="hideWarn"></el-input>
-          <span v-if="newErr">新旧密码相同!</span>
+        <el-form-item>
+          <el-input placeholder="新密码" type="password" auto-complete="off" v-model="newPassword" @focus="hideWarn"></el-input>
+          <span v-show="newErr">新旧密码相同!</span>
         </el-form-item>
-        <el-form-item label="重复新密码">
-          <el-input type="password" auto-complete="off" v-model="repeatPassword" @focus="hideWarn"></el-input>
-          <span v-if="repeatErr">两次密码不一致!</span>
+        <el-form-item>
+          <el-input placeholder="重复新密码" type="password" auto-complete="off" v-model="repeatPassword" @focus="hideWarn"></el-input>
+          <span v-show="repeatErr">两次密码不一致!</span>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -107,7 +110,7 @@ export default {
     padding: 10px 18px;
     background:#475669;
     color: #fff;
-    .account,.type{
+    .item{
       margin-bottom: 5px;
       font-size: 14px;
       span{
@@ -118,6 +121,20 @@ export default {
       height: 25px;
       .logoff,.change{
         font-size: 12px;
+      }
+    }
+    .el-dialog{
+      max-width: 500px;
+      .form-box{
+        span{
+          margin-left: 5px;
+          margin-bottom: -10px;
+          color: red;
+          font-size: 12px;
+        }
+        .el-form-item{
+          margin-bottom: 10px;
+        }
       }
     }
   }

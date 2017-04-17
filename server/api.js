@@ -41,8 +41,7 @@ router.post('/api/login/getAccount',(req,res) => {
     let account = req.body.account;
     let password = req.body.password;
     models.Login.find({account:account},(err,data) => {
-        console.log(data);
-        if (!data) {
+        if (!data[0]) {
             let msg = "0";
             res.send(msg);
         } else if(data[0].password != password){

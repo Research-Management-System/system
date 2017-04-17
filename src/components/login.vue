@@ -30,7 +30,9 @@
           .then((response) => {
             // 响应成功回调
             if(response.data === 0 || response.data === 1){
-              alert("用户名/密码错误");
+              this.$alert('账号/密码错误!', '提示', {
+                confirmButtonText: '确定'
+              });
             }else{
               this.$emit("login",response.data[0]);
             }
