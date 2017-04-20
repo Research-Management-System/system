@@ -12,8 +12,15 @@ const loginSchema = mongoose.Schema({
     account : String,
     password : String,
     type: Number,  //用户类型 0:根管理员 1:学生 2:教师 3:科研成果管理员 4:财务管理员 5:固定资产管理员
+    name : String,
+    email : String,
+    phone : String,
+    state : Number,//0未激活 1激活
+    teacher : String,//非学生时此项为null
+    projects : Array,//学生参加的项目列表或老师所拥有的项目列表
+    time : Date
 });
-/************** 定义模式userSchema **************/
+/************** 定义模式userSchema **************
 const userSchema = mongoose.Schema({
     account : String,
     password : String,
@@ -25,6 +32,13 @@ const userSchema = mongoose.Schema({
     teacher : String,//非学生时此项为null
     projects : Array,//学生参加的项目列表或老师所拥有的项目列表
     time : Date
+});
+/************** 定义模式projectapplySchema **************/
+const projectapplySchema = mongoose.Schema({
+	account : String,
+	projectId : String,
+	state : Number,
+	time : Date
 });
 /************** 定义模式projectSchema **************/
  const projectSchema = mongoose.Schema({
@@ -123,11 +137,11 @@ const Models = {
 	//登录模型
     Login : mongoose.model('userinfos',loginSchema,'userInfos'),
     //管理员模型
-    Admin : mongoose.model('admin',userSchema,'userInfos'),
+//    Admin : mongoose.model('admin',userSchema,'userInfos'),
     //学生模型
-    Student : mongoose.model('student',userSchema,'userInfos'),
+//    Student : mongoose.model('student',userSchema,'userInfos'),
     //老师模型
-    Teacher : mongoose.model('teacher',userSchema,'userInfos'),
+//    Teacher : mongoose.model('teacher',userSchema,'userInfos'),
     //项目模型
     Project : mongoose.model('project',projectSchema,'projectS'),
     //项目组模型
@@ -141,7 +155,9 @@ const Models = {
     //固定资产模型
     Assets : mongoose.model('assets',assetsSchema,'fixedAssets'),
     //不入库报账模型
-    Render : mongoose.model('render',renderSchema,'renderAccount')
+    Render : mongoose.model('render',renderSchema,'renderAccount'),
+    //学生加入项目申请模型
+    Projectapply : mongoose.model('projectapply',projectapplySchema,'projectApplys')
 }
 
 module.exports = Models;

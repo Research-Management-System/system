@@ -169,6 +169,13 @@ render = {
 	ticket : "./Tickets/20170000001.pdf",//报账票据集合成一个pdf文件后上传
 	time : mydate
 }
+//创建学生参加项目申请
+projectapply = {
+	account : "13020031154",
+	projectId : "20171302001",
+	state : 1,
+	time : mydate
+};
 
 //建立链接
 mongo = new Mongo("localhost");
@@ -190,6 +197,8 @@ patentS = newDB.createCollection("patentS");
 fixedAssets = newDB.createCollection("fixedAssets");
 //不入库报账表
 renderAccount = newDB.createCollection("renderAccount");
+//学生参加项目申请表
+projectApplys = newDB.createCollection("projectApplys");
 
 
 
@@ -202,6 +211,7 @@ sThesis = newDB.getCollection("sThesis");
 patentS = newDB.getCollection("patentS");
 fixedAssets = newDB.getCollection("fixedAssets");
 renderAccount = newDB.getCollection("renderAccount");
+projectApply = newDB.getCollection("projectApplys");
 
 //写入数据
 userInfos.insert(rootmanage);
@@ -217,3 +227,4 @@ sThesis.insert(sthesis);
 patentS.insert(patent);
 fixedAssets.insert(assets);
 renderAccount.insert(render);
+projectApply.insert(projectapply);
