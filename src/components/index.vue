@@ -45,7 +45,7 @@
     .top-wrapper{
       width: 100%;
       height: 50px;
-      min-width: 900px;
+      min-width: 1060px;
       background: #1F2D3D;
       .logo{
         display: inline-block;
@@ -66,12 +66,12 @@
     .mid-wrapper{
       width: 100%;
       height: 100%;
-      min-width: 900px;
+      min-width: 1060px;
       margin-top: -50px;
       padding-top: 50px;
       .side{
         height: 100%;
-        min-width: 180px;
+        min-width: 220px;
       }
       .content{
         margin: 20px;
