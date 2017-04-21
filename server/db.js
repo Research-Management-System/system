@@ -20,19 +20,6 @@ const loginSchema = mongoose.Schema({
     projects : Array,//学生参加的项目列表或老师所拥有的项目列表
     time : Date
 });
-/************** 定义模式userSchema **************
-const userSchema = mongoose.Schema({
-    account : String,
-    password : String,
-    type: Number,  //用户类型 0:根管理员 1:学生 2:教师 3:科研成果管理员 4:财务管理员 5:固定资产管理员
-    name : String,
-    email : String,
-    phone : String,
-    state : Number,//0未激活 1激活
-    teacher : String,//非学生时此项为null
-    projects : Array,//学生参加的项目列表或老师所拥有的项目列表
-    time : Date
-});
 /************** 定义模式projectapplySchema **************/
 const projectapplySchema = mongoose.Schema({
 	account : String,
