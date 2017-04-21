@@ -8,7 +8,7 @@ rootmanage = {
 	email : "ternencewind@outlook.com",
 	phone : "15395189961",
 	state : 1,
-	teache : null,
+	teacher : null,
 	projects : null,
 	time : null
 };
@@ -21,7 +21,7 @@ finamanage = {
 	email : "ternencewind@outlook.com",
 	phone : "15395189961",
 	state : 1,
-	teache : null,
+	teacher : null,
 	projects : null,
 	time : null
 };
@@ -34,7 +34,7 @@ researchmanage = {
 	email : "ternencewind@outlook.com",
 	phone : "15395189961",
 	state : 1,
-	teache : null,
+	teacher : null,
 	projects : null,
 	time : null
 };
@@ -47,7 +47,7 @@ assetsmanage = {
 	email : "ternencewind@outlook.com",
 	phone : "15395189961",
 	state : 1,
-	teache : null,
+	teacher : null,
 	projects : null,
 	time : null
 };
