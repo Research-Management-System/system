@@ -37,6 +37,7 @@ const userSchema = mongoose.Schema({
 const projectapplySchema = mongoose.Schema({
 	account : String,
 	projectId : String,
+	teacher : String,
 	state : Number,
 	time : Date
 });
@@ -68,6 +69,7 @@ const sthesisSchema = mongoose.Schema({
 	authors : Array,
 	apply : String,//这条纪录由谁申请的
 	projectId : Array,
+	teacher : String,
 	account : String,
 	state : Number,
 	content : String,//存储pdf文件在服务器端的路径名
@@ -117,6 +119,7 @@ const assetsSchema = mongoose.Schema({
 	user : String,//使用人，就是报账的这个用户
 	ticket : String,//报账票据集合为一个pdf文件后上传
 	state : Number,//申请审批状态
+	teacher : String,//负责申购申请审批的老师
 	time : Date//该条目生成时间
 
 });
