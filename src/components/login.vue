@@ -21,6 +21,15 @@
         <el-form-item>
           <el-input placeholder="重复密码" type="password" auto-complete="off" v-model="repeatPassword"></el-input>
         </el-form-item>
+        <el-form-item label="身份">
+          <el-radio-group v-model="type">
+            <el-radio label="学生"></el-radio>
+            <el-radio label="教师"></el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item v-show="this.type === '学生'">
+          <el-input placeholder="指导教师工号" type="teacher" auto-complete="off" v-model="email"></el-input>
+        </el-form-item>
         <el-form-item>
           <el-input placeholder="邮箱" type="email" auto-complete="off" v-model="email"></el-input>
         </el-form-item>
@@ -29,8 +38,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="signIn = false">取 消</el-button>
-        <el-button type="primary" @click="userSignIn">确 定</el-button>
+        <el-button @click="signIn = false">取消</el-button>
+        <el-button type="primary" @click="userSignIn">注册</el-button>
       </div>
     </el-dialog>
   </div>
@@ -50,6 +59,8 @@
               repeatPassword: '',
               email: '',
               phone: '',
+              type: '',
+              teacher: '',
               signIn: false
           }
       },
@@ -62,17 +73,28 @@
           axios.post('/api/login/getAccount',data)
             .then((response) => {
               // 响应成功回调
+              console.log(response.data);
               if(response.data === 0 || response.data === 1){
                 this.$alert('账号/密码错误!', '提示', {
                   confirmButtonText: '确定'
                 });
               }else{
-                this.$emit("login",response.data[0]);
+                this.$emit("login",response.data);
               }
           });
         },
         userSignIn() {
-          console.log(this.name);
+          let data = {
+            name: this.name,
+            account: this.signAccount,
+            password: this.signPassword,
+            repeatPassword: this.repeatPassword,
+            email: this.email,
+            phone: this.phone,
+            teacher: this.teacher
+          };
+          data.type = this.type==="学生"?1:2;
+          console.log(data);
         }
       }
     }

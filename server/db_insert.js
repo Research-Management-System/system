@@ -105,6 +105,7 @@ sthesis = {
 	authors : ["毛泽东","周恩来"],
 	apply : "568842",
 	projectId : ["20171302001"],
+	teacher : "568842",//指定审核老师
 	account : "123456789",
 	state : 0,
 	content : "./Sthesis/论联合政府.pdf",
@@ -154,6 +155,7 @@ assets = {
 	user : "13020031154",//使用人
 	ticket : "./Tickets/20170000002.pdf",//报账票据集合为一个pdf文件后上传
 	state : 1,//申请审批状态
+	teacher : "568842",
 	time : mydate//该条目生成时间
 }
 
@@ -173,6 +175,7 @@ render = {
 projectapply = {
 	account : "13020031154",
 	projectId : "20171302001",
+	teacher : "568842",
 	state : 1,
 	time : mydate
 };

@@ -3,24 +3,15 @@
     <div class="top-wrapper">
       <span class="logo"></span><span class="title">科研项目过程管理系统</span>
     </div>
-    <!-- <div class="side-wrapper">
-      <userInfo :userInfo="userInfo"></userInfo>
-      <sideNav></sideNav>
-    </div>
-    <div class="content-wrapper">
-      <router-link to="/"></router-link>
-      <router-link to="/apply"></router-link>
-      <router-view></router-view>
-    </div> -->
     <el-row class="mid-wrapper">
       <el-col class="side" :span="4">
-        <userInfo :userInfo="userInfo"></userInfo>
+        <userInfo :userInfo="data.userInfo"></userInfo>
         <sideNav></sideNav>
       </el-col>
       <el-col class="content" :span="18">
         <router-link to="/"></router-link>
         <router-link to="/apply"></router-link>
-        <router-view></router-view>
+        <router-view :data="data"></router-view>
       </el-col>
     </el-row>
   </div>
@@ -32,7 +23,7 @@
     import userInfo from './userInfo/userInfo.vue';
 
     export default {
-      props: ['userInfo'],
+      props: ['data'],
       components: {
         sideNav: sideNav,
         userInfo: userInfo
