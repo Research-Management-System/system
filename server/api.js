@@ -4,30 +4,71 @@ const models = require('./db');
 const express = require('express');
 const router = express.Router();
 
-// 创建账号接口
-// router.post('/api/login/createAccount',(req,res) => {
-//     // 这里的req.body能够使用就在index.js中引入了const bodyParser = require('body-parser')
-//     let newAccount = new models.Login({
-//         account : req.body.account,
-//         password : req.body.password
-//     });
-//     // 保存数据newAccount数据进mongoDB
-//     newAccount.save((err,data) => {
-//         if (err) {
-//             res.send(err);
-//         } else {
-//             res.send('createAccount successed');
-//         }
-//     });
-// });
 //查询登录状态
 router.get('/api/isLogin',(req,res) => {
-  if(req.session.account){
-    models.Login.find({account:req.session.account},(err,data) => {
-      res.send(data);
+  let account = req.session.account;
+  if(account){
+    models.Login.findOne({account:account},(err,data) => {
+      let allData = {
+        userInfo: data
+      };
+      if(allData.userInfo.type === 1){
+        //考虑使用promise重写
+        models.Project.find({students:account},(err,projects) => {
+          allData.projects = projects;
+          models.Projectapply.find({account:account},(err,projectApply) => {
+            allData.projectApply = projectApply;
+            // models.ProjectG.find({students:account},(err,projectGs) =>{
+            //    allData.projectGs = projectGs;
+            //  });
+            models.Sthesis.find({apply:account},(err,sthesises) => {
+              allData.sthesises = sthesises;
+              models.Gthesis.find({apply:account},(err,gthesises) => {
+                allData.gthesises = gthesises;
+                models.Patent.find({apply:account},(err,patents) => {
+                  allData.patents = patents;
+                  models.Assets.find({user:account},(err,assets) => {
+                    allData.assets = assets;
+                    models.Render.find({apply:account},(err,renders) => {
+                      allData.renders = renders;
+                      res.send(allData);
+                    });
+                  });
+                });
+              })
+            });
+          });
+        });
+      }else{
+        models.Project.find((err,projects) => {
+          allData.projects = projects;
+          models.Projectapply.find({teacher:account},(err,projectApply) => {
+            allData.projectApply = projectApply;
+            models.ProjectG.find((err,projectGs) =>{
+              allData.projectGs = projectGs;
+              models.Sthesis.find((err,sthesises) => {
+                allData.sthesises = sthesises;
+                models.Gthesis.find((err,gthesises) => {
+                  allData.gthesises = gthesises;
+                  models.Patent.find((err,patents) => {
+                    allData.patents = patents;
+                    models.Assets.find((err,assets) => {
+                      allData.assets = assets;
+                      models.Render.find((err,renders) => {
+                        allData.renders = renders;
+                        res.send(allData);
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      }
     });
   }else{
-    res.send(req.session.account);
+    res.send(account);
   }
 });
 //注销接口
@@ -40,16 +81,71 @@ router.post('/api/login/getAccount',(req,res) => {
     // 通过模型去查找数据库
     let account = req.body.account;
     let password = req.body.password;
-    models.Login.find({account:account},(err,data) => {
-        if (!data[0]) {
+    models.Login.findOne({account:account},(err,data) => {
+        if (!data) {
             let msg = "0";
             res.send(msg);
-        } else if(data[0].password != password){
+        } else if(data.password != password){
             let msg = "1";
             res.send(msg);
         } else {
             req.session.account = account;
-            res.send(data);
+            let allData = {
+              userInfo: data
+            };
+            if(allData.userInfo.type === 1){
+              models.Project.find({students:account},(err,projects) => {
+                allData.projects = projects;
+                models.Projectapply.find({account:account},(err,projectApply) => {
+                  allData.projectApply = projectApply;
+                  // models.ProjectG.find({students:account},(err,projectGs) =>{
+                  //    allData.projectGs = projectGs;
+                  //  });
+                  models.Sthesis.find({apply:account},(err,sthesises) => {
+                    allData.sthesises = sthesises;
+                    models.Gthesis.find({apply:account},(err,gthesises) => {
+                      allData.gthesises = gthesises;
+                      models.Patent.find({apply:account},(err,patents) => {
+                        allData.patents = patents;
+                        models.Assets.find({user:account},(err,assets) => {
+                          allData.assets = assets;
+                          models.Render.find({apply:account},(err,renders) => {
+                            allData.renders = renders;
+                            res.send(allData);
+                          });
+                        });
+                      });
+                    })
+                  });
+                });
+              });
+            }else{
+              models.Project.find((err,projects) => {
+                allData.projects = projects;
+                models.ProjectApply.find({teacher:account},(err,projectApply) => {
+                  allData.projectApply = projectApply;
+                  models.ProjectG.find((err,projectGs) =>{
+                    allData.projectGs = projectGs;
+                    models.Sthesis.find((err,sthesises) => {
+                      allData.sthesises = sthesises;
+                      models.Gthesis.find((err,gthesises) => {
+                        allData.gthesises = gthesises;
+                        models.Patent.find((err,patents) => {
+                          allData.patents = patents;
+                          models.Assets.find((err,assets) => {
+                            allData.assets = assets;
+                            models.Render.find((err,renders) => {
+                              allData.renders = renders;
+                              res.send(allData);
+                            });
+                          });
+                        });
+                      });
+                    });
+                  });
+                });
+              });
+            }
         }
     });
 });
@@ -67,4 +163,6 @@ router.post('/api/changePassword',(req,res) => {
     }
   })
 });
+
+
 module.exports = router;

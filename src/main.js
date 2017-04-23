@@ -5,8 +5,8 @@ import VueRouter from 'vue-router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-default/index.css'
 import App from './App';
-import apply from './components/apply/apply.vue';
-import look from './components/look/look.vue';
+import projectApply from './components/projectApply/projectApply.vue';
+import projectJoin from './components/projectJoin/projectJoin.vue';
 
 Vue.use(ElementUI);
 Vue.use(VueRouter);
@@ -14,8 +14,8 @@ Vue.use(VueRouter);
 Vue.config.productionTip = false;
 
 let routes = [
-  {path: '/', component: look},
-  {path: '/apply', component: apply}
+  {path: '/', component: projectJoin},
+  {path: '/projectApply', component: projectApply}
 ];
 
 let router = new VueRouter({

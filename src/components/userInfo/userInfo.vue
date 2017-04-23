@@ -4,7 +4,7 @@
       <span>账号:</span><span>{{userInfo.account}}</span>
     </div>
     <div class="name item">
-      <span>姓名:</span><span>{{type[userInfo.type]}}</span>
+      <span>姓名:</span><span>{{userInfo.name}}</span>
     </div>
     <div class="type item">
       <span>类型:</span><span>{{type[userInfo.type]}}</span>
@@ -12,6 +12,7 @@
     <div class="menu">
       <el-button class="change" type="text" @click="changePassword = true">修改密码</el-button>
       <el-button class="logoff" type="text" @click="logOff">注销</el-button>
+      <el-button class="information" type="text" @click="changeInformation = true">修改信息</el-button>
     </div>
     <el-dialog title="修改密码" v-model="changePassword">
       <el-form class="form-box">
@@ -33,6 +34,23 @@
         <el-button type="primary" @click="changePas">确 定</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="修改个人信息" v-model="changeInformation">
+      <el-form class="form-box">
+        <el-form-item>
+          <el-input placeholder="姓名" type="text" auto-complete="off" v-model="name"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-input placeholder="邮箱" type="text" auto-complete="off" v-model="email"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-input placeholder="电话" type="text" auto-complete="off" v-model="phone"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="changeInformation = false">取 消</el-button>
+        <el-button type="primary" @click="changeInfo">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -42,14 +60,18 @@ import axios from 'axios';
 export default {
   data() {
     return {
+      name: this.userInfo.name,
+      email: this.userInfo.email,
+      phone: this.userInfo.phone,
       oldPassword: '',
       newPassword: '',
       repeatPassword: '',
       passwordErr: false,
       newErr: false,
       repeatErr: false,
-      type: ["根管理员","学生","教师","xx管理员","xx管理员"],
-      changePassword: false
+      type: ["根管理员","学生","教师","科研成果管理员","财务管理员","固定资产管理员"],
+      changePassword: false,
+      changeInformation: false
     };
   },
   props:['userInfo'],
@@ -100,6 +122,9 @@ export default {
       this.passwordErr = false;
       this.repeatErr = false;
       this.newErr = false;
+    },
+    changeInfo() {
+      console.log(this.userInfo.name);
     }
   }
 }
@@ -119,7 +144,7 @@ export default {
     }
     .menu{
       height: 25px;
-      .logoff,.change{
+      .logoff,.change,.information{
         font-size: 12px;
       }
     }

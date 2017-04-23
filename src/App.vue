@@ -4,7 +4,7 @@
     <router-link to="/index"></router-link>
     <router-view></router-view> -->
     <login v-if="!isLogin" @login="loginSuccess"></login>
-    <index v-if="isLogin" :userInfo="userInfo"></index>
+    <index v-if="isLogin" :data="data"></index>
   </div>
 </template>
 
@@ -16,23 +16,23 @@ export default {
   data(){
     return {
       isLogin: false,
-      userInfo: {}
+      data: {}
     };
   },
   methods: {
     //子组件登陆成功后父组件触发
     loginSuccess(data) {
       this.isLogin = true;
-      this.userInfo = data;
+      this.data = data;
     }
   },
   mounted() {
     axios.get('/api/isLogin')
     .then((response) => {
-      console.log(response.data);
       if(response.data){
         this.isLogin = true;
-        this.userInfo = response.data[0];
+        this.data = response.data;
+        console.log(this.data);
       }
     });
   },
