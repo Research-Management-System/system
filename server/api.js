@@ -122,7 +122,7 @@ router.post('/api/login/getAccount',(req,res) => {
             }else{
               models.Project.find((err,projects) => {
                 allData.projects = projects;
-                models.ProjectApply.find({teacher:account},(err,projectApply) => {
+                models.Projectapply.find({teacher:account},(err,projectApply) => {
                   allData.projectApply = projectApply;
                   models.ProjectG.find((err,projectGs) =>{
                     allData.projectGs = projectGs;
@@ -152,17 +152,65 @@ router.post('/api/login/getAccount',(req,res) => {
 //修改密码
 router.post('/api/changePassword',(req,res) => {
   console.log(req.body.newPassword);
+	//  console.log(req.body.oldPassword);
   let account = req.body.account;
   let password = req.body.newPassword;
-  models.Login.update({'account':account},{$set:{'password':password}},function(err){
+	//  let prepassword = req.body.oldPassword;
+
+  models.Login.update({$and:[{'account':account}/*,{'password':prepassword}*/]},{$set:{'password':req.body.newPassword}},function(err){
     if(err){
       console.log(err);
+      let msg = "mimacuowu";
+      res.send(msg);
     }else{
       let msg = "修改成功";
       res.send(msg);
     }
-  })
+  });
 });
-
+//用户注册
+router.post('/api/signIn',(req,res) => {
+	let account = req.body.account;
+	let password = req.body.password;
+	let name = req.body.name;
+	let email = req.body.email;
+	let phone = req.body.phone;
+	let type = req.body.type;
+	let teacher = req.body.teacher;
+	var user = {
+		type : type,
+		name : name,
+		account : account,
+		password : password,		
+		email : email,
+		phone : phone,
+		state : 0,
+		teacher : teacher,
+		projects : null,
+		time : new Date()
+	}
+	models.Login.findOne({'account':account},function(err,data){
+		if(err){
+			console.log("err");
+		}else{
+			if(data===null){
+				models.Login.create(user,function(err){
+					if(err){
+						let msg = 0;
+						res.send(msg);
+						console.log("注册失败");
+					}else{
+						res.send(1);
+						console.log("注册成功");
+					}
+				});
+			}else{
+				let msg = 0;
+				res.send(msg);
+				console.log("不可重复注册");
+			}
+		}
+	});
+});
 
 module.exports = router;
