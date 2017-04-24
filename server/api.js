@@ -13,7 +13,7 @@ router.get('/api/isLogin',(req,res) => {
         userInfo: data
       };
       if(allData.userInfo.type === 1){
-        //考虑使用promise重写
+        //考虑使用promise重写,处理回调地狱
         models.Project.find({students:account},(err,projects) => {
           allData.projects = projects;
           models.Projectapply.find({account:account},(err,projectApply) => {
@@ -77,7 +77,7 @@ router.get('/api/logoff',(req,res) => {
   res.send("log off success!");
 });
 // 登录接口
-router.post('/api/login/getAccount',(req,res) => {
+router.post('/api/login',(req,res) => {
     // 通过模型去查找数据库
     let account = req.body.account;
     let password = req.body.password;
@@ -160,10 +160,14 @@ router.post('/api/changePassword',(req,res) => {
   models.Login.update({$and:[{'account':account}/*,{'password':prepassword}*/]},{$set:{'password':req.body.newPassword}},function(err){
     if(err){
       console.log(err);
-      let msg = "mimacuowu";
+<<<<<<< HEAD
+      let msg = 0;
+=======
+      let msg = 0;
+>>>>>>> temp
       res.send(msg);
     }else{
-      let msg = "修改成功";
+      let msg = 1;
       res.send(msg);
     }
   });
