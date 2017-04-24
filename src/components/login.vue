@@ -2,7 +2,7 @@
   <div class="mod-login">
     <el-card class="box-card">
       <span class="logo"></span><h4 class="title">科研项目过程管理系统</h4>
-      <el-input class="account" v-model="account" placeholder="学号"></el-input>
+      <el-input class="account" v-model="account" placeholder="学号/工号"></el-input>
       <el-input class="password" type="password" v-model="password" placeholder="密码"></el-input>
       <el-button type="primary" class="login-btn" @click="login">登录</el-button>
       <el-button type="text" class="sign-in" @click="signIn = true">注册</el-button>
@@ -70,7 +70,7 @@
             account : this.account,
             password : this.password
           };
-          axios.post('/api/login/getAccount',data)
+          axios.post('/api/login',data)
             .then((response) => {
               // 响应成功回调
               console.log(response.data);
@@ -91,10 +91,22 @@
             repeatPassword: this.repeatPassword,
             email: this.email,
             phone: this.phone,
-            teacher: this.teacher
+            teacher: this.teacher,
+            state: 0
           };
           data.type = this.type==="学生"?1:2;
           console.log(data);
+          axios.post('/api/signIn',data).then((response) => {
+            if(response.data === 1){
+              this.$alert('注册成功!', '提示', {
+                confirmButtonText: '确定'
+              });
+            }else{
+              this.$alert('注册失败,请重新注册。', '提示', {
+                confirmButtonText: '确定'
+              });
+            }
+          });
         }
       }
     }

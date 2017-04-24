@@ -6,7 +6,7 @@
     <el-row class="mid-wrapper">
       <el-col class="side" :span="4">
         <userInfo :userInfo="data.userInfo"></userInfo>
-        <sideNav></sideNav>
+        <sideNav :userInfo="data.userInfo"></sideNav>
       </el-col>
       <el-col class="content" :span="18">
         <router-link to="/"></router-link>

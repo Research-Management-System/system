@@ -105,17 +105,27 @@ export default {
       }else{
         let data = {
           account: this.userInfo.account,
+          oldPassword: this.oldPassword,
           newPassword: this.newPassword
         };
         axios.post('/api/changePassword',data).then((response) => {
           console.log(response.data);
-        })
-        this.$alert('修改密码成功', '修改密码', {
-          confirmButtonText: '确定',
-          callback: action => {
-            location.reload();
+          if(response.data === 1){
+            this.$alert('修改密码成功', '修改密码', {
+              confirmButtonText: '确定',
+              callback: action => {
+                location.reload();
+              }
+            });
+          }else{
+            this.$alert('修改失败,请重新修改', '修改密码', {
+              confirmButtonText: '确定',
+              callback: action => {
+                location.reload();
+              }
+            });
           }
-        });
+        })
       }
     },
     hideWarn(){
@@ -124,7 +134,31 @@ export default {
       this.newErr = false;
     },
     changeInfo() {
-      console.log(this.userInfo.name);
+      let data = {
+        account: this.userInfo.account,
+        name: this.name,
+        email: this.email,
+        phone: this.phone
+      };
+      console.log(data);
+      axios.post('/api/changeUserinfo',data).then((response) => {
+        console.log(response.data);
+        if(response.data === 1){
+          this.$alert('修改成功', '修改信息', {
+            confirmButtonText: '确定',
+            callback: action => {
+              location.reload();
+            }
+          });
+        }else{
+          this.$alert('修改失败,请重新修改', '修改信息', {
+            confirmButtonText: '确定',
+            callback: action => {
+              location.reload();
+            }
+          });
+        }
+      })
     }
   }
 }
