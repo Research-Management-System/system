@@ -160,11 +160,7 @@ router.post('/api/changePassword',(req,res) => {
   models.Login.update({$and:[{'account':account}/*,{'password':prepassword}*/]},{$set:{'password':req.body.newPassword}},function(err){
     if(err){
       console.log(err);
-<<<<<<< HEAD
       let msg = 0;
-=======
-      let msg = 0;
->>>>>>> temp
       res.send(msg);
     }else{
       let msg = 1;
