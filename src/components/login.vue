@@ -28,13 +28,13 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item v-show="this.type === '学生'">
-          <el-input placeholder="指导教师工号" type="teacher" auto-complete="off" v-model="email"></el-input>
+          <el-input placeholder="指导教师工号" type="text" auto-complete="off" v-model="teacher"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-input placeholder="邮箱" type="email" auto-complete="off" v-model="email"></el-input>
+          <el-input placeholder="邮箱" type="text" auto-complete="off" v-model="email"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-input placeholder="电话" type="phone" auto-complete="off" v-model="phone"></el-input>
+          <el-input placeholder="电话" type="text" auto-complete="off" v-model="phone"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
