@@ -13,7 +13,7 @@ router.get('/api/isLogin',(req,res) => {
         userInfo: data
       };
       if(allData.userInfo.type === 1){
-        //考虑使用promise重写
+        //考虑使用promise重写,处理回调地狱
         models.Project.find({students:account},(err,projects) => {
           allData.projects = projects;
           models.Projectapply.find({account:account},(err,projectApply) => {
@@ -77,7 +77,7 @@ router.get('/api/logoff',(req,res) => {
   res.send("log off success!");
 });
 // 登录接口
-router.post('/api/login/getAccount',(req,res) => {
+router.post('/api/login',(req,res) => {
     // 通过模型去查找数据库
     let account = req.body.account;
     let password = req.body.password;
@@ -157,8 +157,10 @@ router.post('/api/changePassword',(req,res) => {
   models.Login.update({'account':account},{$set:{'password':password}},function(err){
     if(err){
       console.log(err);
+      let msg = "0";
+      res.send(msg);
     }else{
-      let msg = "密码修改成功";
+      let msg = "1";
       res.send(msg);
     }
   })
@@ -166,15 +168,17 @@ router.post('/api/changePassword',(req,res) => {
 
 //修改信息
 router.post('/api/changeUserinfo',(req,res) => {
+  let account = req.body.account;
   let name = req.body.name;
   let email = req.body.email;
   let phone = req.body.phone;
   models.Login.update({'account':account},{$set:{'name':name , 'email':email , 'phone':phone}},function(err){
     if(err){
       console.log(err);
+      let msg = "0";
+      res.send(msg);
     }else{
-      let msg = "个人信息修改成功";
-      console.log("个人信息修改成功");//仅供测试用。
+      let msg = "1";
       res.send(msg);
     }
   })
@@ -184,32 +188,25 @@ router.post('/api/changeUserinfo',(req,res) => {
 router.post('/api/joinProject',(req,res) => {
   let warn = 0;
   let account = req.body.account;
-  let projectId = req.body.projectId;
-  let teacher = req.body.teacher;
+  let projectId = req.body.id;
   let state = 0;
-  let time = Date;
-  //查重
-  let students = models.Project.findOne({id:projectId});
-  let length = students.length;
-  let i = 0;
-  for (; i < len; ++i) {
-    if(account === students[i])
-      console.log("重复申请，出现错误");
-      warn = 1;
-  } 
+  let time = Date();
+  let teacher;
 
-
-  var data = [{"account":account,"projectId":projectId,"teacher":teacher,"state":state,"time":time}];
-  models.Projectapply.insert(data, function(err, result) { 
-      if(err||warn === 1){
-          let msg = "申请失败";
-          res.send(msg);
+  models.Login.find({ account : account },(err,student) => {
+    teacher = student.teacher;
+    var data = {"account":account,"projectId":projectId,"teacher":teacher,"state":state,"time":time};
+    models.Projectapply.create(data, function(err, result) { 
+      if(err){
+        console.log(err);
+        let msg = "0";
+        res.send(msg);
       }     
       else{
-          let msg = "申请成功";
-          console.log("申请成功");//仅供测试用。
-          res.send(msg);
+        let msg = "1";
+        res.send(msg);
       }
+  });
   });
 });
 
