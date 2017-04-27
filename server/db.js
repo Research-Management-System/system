@@ -33,7 +33,7 @@ const projectapplySchema = mongoose.Schema({
     name : String,
     teacher: String,
     students: Array,
-    id: Number,//项目编号
+    id: String,//项目编号
     group : String,
     account : String,//涉及钱的那个账号
     description: String,

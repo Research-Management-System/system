@@ -1,4 +1,4 @@
-var mydate = Date();
+var mydate = new Date();
 //根管理员
 rootmanage = {
 	type : 0,

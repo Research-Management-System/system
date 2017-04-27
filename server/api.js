@@ -196,7 +196,7 @@ router.post('/api/signIn',(req,res) => {
 		phone : phone,
 		state : state,
 		teacher : teacher,
-		projects : null,
+		projects : new Array(),
 		time : new Date()
 	}
 	models.Login.findOne({'account':account},function(err,data){
@@ -262,8 +262,18 @@ router.post('/api/checkJoinProject',(req,res) => {
       console.log(err);
       res.send("0");
     }else{
-      console.log("同意申请"+account);
-      res.send("1");
+      if(state===1){
+        console.log("同意申请"+account);
+        models.Login.update({'account':account},{$addToSet:{'projects':projectId}},(err) => {
+          models.Project.update({'id':projectId},{$addToSet:{'students':account}},(err) => {
+            models.ProjectG.update({'projects':projectId},{$addToSet:{'students':account}},(err) => {
+              res.send("1");
+            });      
+          });
+        });
+      }else{
+        res.send("0");
+      }
     }
   });
 });
@@ -278,15 +288,12 @@ router.post('/api/joinProject',(req,res) => {
       console.log("已申请，不可重复申请");
       res.send("0");
     }else{
-      models.Project.find({'id':projectId},(err,data) => {
-        console.log(err);
+      models.Project.findOne({'id':projectId},(err,data) => {
         if(data){
           var projectapply = {
             account : account,
-            //account : "13020031157",
             projectId : projectId,
             teacher : data.teacher,
-            //teacher : "568842",
             state : 0,
             time : new Date()
           }
@@ -304,6 +311,67 @@ router.post('/api/joinProject',(req,res) => {
           console.log("没有此项目");
           res.send("0");
         }
+      });
+    }
+  });
+});
+//新建项目组
+router.post('/api/createProjectGroup',(req,res) => {
+  let name = req.body.name;
+  let caption = req.body.caption;
+  models.ProjectG.count((err,count) => {
+    var id = (new Date().getFullYear())+"01"+(Array(5).join('0')+count).slice(-5);
+    var projectG = {
+      name : name,
+      id : id,
+      caption : caption,
+      projects : new Array(),
+      teachers : new Array(),
+      students : new Array(),
+      time : new Date()
+    };
+    models.ProjectG.create(projectG,(err) => {
+      if(err){
+        console.log("创建失败");
+        res.send("0");
+      }else{
+        console.log("新建项目组"+id);
+        res.send("1");
+      }
+    });
+  });
+});
+//新建项目
+router.post('/api/createProject',(req,res) => {
+  let name = req.body.name;
+  let teacher = req.body.teacher;
+  let group = req.body.group;
+  let account = req.body.account;
+  let description = req.body.description;
+  let id = req.body.id;
+  //let id = "201702000001";//如果没传id可以用这个暂时测试
+  //查询是否有这个id的项目了
+  models.Project.findOne({'id':id},(err,data) => {
+    if(data){
+      console.log("该项目已经存在");
+      res.send("0");
+    }else{
+      var project = {
+        name : name,
+        teacher : teacher,
+        students : new Array(),
+        id : id,
+        group : group,
+        account : account,
+        description : description,
+        time : new Date()
+      };
+      models.Project.create(project,(err) => {
+        models.ProjectG.update({'id':group},{$addToSet:{'projects':id,'teachers':teacher}},(err) => {
+          models.Login.update({'account':teacher},{$addToSet:{'projects':id}},(err) => {
+            res.send("1");
+          });
+        });
       });
     }
   });
