@@ -56,7 +56,7 @@ router.get('/api/isLogin',(req,res) => {
                       allData.assets = assets;
                       models.Render.find((err,renders) => {
                         allData.renders = renders;
-                        models.Login.find({teacher:account},(err,signInApply) => {
+                        models.Login.find({teacher:account,state:0},(err,signInApply) => {
                           allData.signInApply = signInApply;
                           res.send(allData);
                         });
@@ -139,7 +139,7 @@ router.post('/api/login',(req,res) => {
                             allData.assets = assets;
                             models.Render.find((err,renders) => {
                               allData.renders = renders;
-                              models.Login.find({teacher:account},(err,signInApply) => {
+                              models.Login.find({teacher:account,state:0},(err,signInApply) => {
                                 allData.signInApply = signInApply;
                                 res.send(allData);
                               });

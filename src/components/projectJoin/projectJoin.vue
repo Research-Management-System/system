@@ -20,6 +20,9 @@
           <el-input placeholder="项目名称" type="text" auto-complete="off" v-model="name"></el-input>
         </el-form-item>
         <el-form-item>
+          <el-input placeholder="项目编号" type="text" auto-complete="off" v-model="id"></el-input>
+        </el-form-item>
+        <el-form-item>
           <el-input placeholder="负责教师工号" type="text" auto-complete="off" v-model="teacher"></el-input>
         </el-form-item>
         <el-form-item>
@@ -85,6 +88,7 @@ export default {
       description: '',
       groupName: '',
       caption: '',
+      id: '',
       projects: this.data.projects.slice(0,10),
       projectLength: this.data.projects.length,
       joinProjectId: '',
@@ -119,6 +123,7 @@ export default {
     projectCreate(){
       let data = {
         name: this.name,
+        id: this.id,
         teacher: this.teacher,
         group: this.projectG,
         account: this.account,

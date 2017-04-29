@@ -7,6 +7,7 @@ import 'element-ui/lib/theme-default/index.css'
 import App from './App';
 import projectApply from './components/projectApply/projectApply.vue';
 import projectJoin from './components/projectJoin/projectJoin.vue';
+import checkJoin from './components/checkJoin/checkJoin.vue';
 
 Vue.use(ElementUI);
 Vue.use(VueRouter);
@@ -15,7 +16,8 @@ Vue.config.productionTip = false;
 
 let routes = [
   {path: '/', component: projectJoin},
-  {path: '/projectApply', component: projectApply}
+  {path: '/projectApply', component: projectApply},
+  {path: '/checkJoin', component: checkJoin}
 ];
 
 let router = new VueRouter({

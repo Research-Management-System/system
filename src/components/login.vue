@@ -99,11 +99,17 @@
           axios.post('/api/signIn',data).then((response) => {
             if(response.data === 1){
               this.$alert('注册成功!', '提示', {
-                confirmButtonText: '确定'
+                confirmButtonText: '确定',
+                callback: action => {
+                  location.reload();
+                }
               });
             }else{
               this.$alert('注册失败,请重新注册。', '提示', {
-                confirmButtonText: '确定'
+                confirmButtonText: '确定',
+                callback: action => {
+                  location.reload();
+                }
               });
             }
           });

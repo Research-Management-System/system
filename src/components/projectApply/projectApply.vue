@@ -103,7 +103,7 @@ export default {
   created(){
     this.applys.forEach(item => {
       item.state = applyState[item.state];
-    })
+    });
   }
 }
 </script>

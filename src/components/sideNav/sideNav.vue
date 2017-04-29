@@ -24,7 +24,7 @@
       <el-col v-else>
         <el-menu default-active="1-1" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" theme="dark">
           <el-submenu index="1">
-            <template slot="title"><i class="el-icon-message"></i>项目过程管理</template>
+            <template slot="title"><i class="el-icon-edit"></i>项目过程管理</template>
               <a href="/#/"><el-menu-item index="1-1">查看/申请项目</el-menu-item></a>
               <a href="/#/projectApply"><el-menu-item index="1-2">处理项目申请</el-menu-item></a>
           </el-submenu>
@@ -40,6 +40,7 @@
             <a href="/#/apply"><el-menu-item index="3-2">固定资产入库申请</el-menu-item></a>
             <a href="/#/apply"><el-menu-item index="3-3">固定资产查看</el-menu-item></a>
           </el-submenu>
+          <a href="/#/checkJoin"><el-menu-item index="4"><i class="el-icon-message"></i>学生注册处理</el-menu-item></a>
         </el-menu>
       </el-col>
     </div>
