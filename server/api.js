@@ -191,7 +191,7 @@ router.post('/api/signIn',(req,res) => {
 		type : type,
 		name : name,
 		account : account,
-		password : password,		
+		password : password,
 		email : email,
 		phone : phone,
 		state : state,
@@ -268,7 +268,7 @@ router.post('/api/checkJoinProject',(req,res) => {
           models.Project.update({'id':projectId},{$addToSet:{'students':account}},(err) => {
             models.ProjectG.update({'projects':projectId},{$addToSet:{'students':account}},(err) => {
               res.send("1");
-            });      
+            });
           });
         });
       }else{
@@ -297,11 +297,11 @@ router.post('/api/joinProject',(req,res) => {
             state : 0,
             time : new Date()
           }
-          models.Projectapply.create(projectapply, function(err) { 
+          models.Projectapply.create(projectapply, function(err) {
             if(err){
               console.log(err);
               res.send("0");
-            }     
+            }
             else{
               console.log("成功申请"+account);
               res.send("1");
