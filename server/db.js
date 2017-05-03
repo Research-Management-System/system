@@ -79,7 +79,7 @@ const gthesisSchema = mongoose.Schema({
 /************** 定义模式patentSchema **************/
 const patentSchema = mongoose.Schema({
 	name : String,
-	id : String,
+	id : String,//专利申请号或专利号
 	applicant : String,
 	inventor : Array,
 	apply : String,
@@ -117,6 +117,7 @@ const renderSchema = mongoose.Schema({
 	description : String,
 	account : String,
 	apply : String,
+	projectId : String,
 	cost : Number,
 	state : Number,
 	ticket : String,//报账票据集合成一个pdf文件后上传
