@@ -8,6 +8,7 @@ import App from './App';
 import projectApply from './components/projectApply/projectApply.vue';
 import projectJoin from './components/projectJoin/projectJoin.vue';
 import checkJoin from './components/checkJoin/checkJoin.vue';
+import gthesiseApply from './components/gthesiseApply/gthesiseApply.vue';
 
 Vue.use(ElementUI);
 Vue.use(VueRouter);
@@ -17,7 +18,8 @@ Vue.config.productionTip = false;
 let routes = [
   {path: '/', component: projectJoin},
   {path: '/projectApply', component: projectApply},
-  {path: '/checkJoin', component: checkJoin}
+  {path: '/checkJoin', component: checkJoin},
+  {path: '/gthesiseApply', component: gthesiseApply},
 ];
 
 let router = new VueRouter({

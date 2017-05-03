@@ -64,7 +64,10 @@
         </el-table-column>
         <el-table-column prop="teacher" label="负责教师">
         </el-table-column>
-        <el-table-column prop="students" label="学生学号">
+        <el-table-column label="学生学号">
+          <template scope="scope">
+            <div v-for="student in scope.row.students">{{student}}</div>
+          </template>
         </el-table-column>
         <el-table-column prop="description" label="项目描述">
         </el-table-column>
@@ -181,6 +184,9 @@ export default {
     .page-change{
       float: right;
       margin-top: 20px;
+    }
+    .el-table__body-wrapper{
+      overflow: hidden;
     }
   }
   .project-join{

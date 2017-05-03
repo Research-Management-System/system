@@ -267,12 +267,16 @@ router.post('/api/checkJoinProject',(req,res) => {
         models.Login.update({'account':account},{$addToSet:{'projects':projectId}},(err) => {
           models.Project.update({'id':projectId},{$addToSet:{'students':account}},(err) => {
             models.ProjectG.update({'projects':projectId},{$addToSet:{'students':account}},(err) => {
-              res.send("1");
+              models.Projectapply.update({state: 1},(err) =>{
+                res.send("1");
+              });
             });
           });
         });
       }else{
-        res.send("0");
+        models.Projectapply.update({state: 1},(err) =>{
+          res.send("2");
+        });
       }
     }
   });

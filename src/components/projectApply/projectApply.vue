@@ -85,7 +85,7 @@ export default {
           }).then(() => {
             axios.post('/api/checkJoinProject',data).then((response) => {
               console.log(response.data);
-              if(response.data === 1){
+              if(response.data === 2){
                 location.reload();
               }else{
                 this.$alert('操作失败', '提示', {
