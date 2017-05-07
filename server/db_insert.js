@@ -133,7 +133,7 @@ patent = {
 	inventor : ["张尚斌"],
 	apply : "568842",
 	projectId : "20171302001",
-	state : 1,
+	state : 5,
 	description : "关于辐射探测器的改进",
 	applystate : 1,
 	content : "./Patents/具有加热设备的辐射探测器.pdf",
@@ -151,7 +151,7 @@ assets = {
 	cost : 6000,//价格
 	projectId : "20171302001",//项目号
 	account : "123456789",//账号
-	deviceState : 1,//设备状态1：正常 2：待修 3：报废
+	devicestate : 1,//设备状态1：正常 2：待修 3：报废
 	user : "13020031154",//使用人
 	ticket : "./Tickets/20170000002.pdf",//报账票据集合为一个pdf文件后上传
 	state : 1,//申请审批状态

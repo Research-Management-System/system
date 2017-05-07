@@ -3,7 +3,45 @@
 const models = require('./db');
 const express = require('express');
 const router = express.Router();
+const formidable = require('formidable');
+const fs = require('fs');
 
+//文件处理函数
+function upload(req,next){                         //next是回调函数
+	/*这里是实际的
+	var message = '';
+	var form = new formidable.IncomingForm();//创建上传表单
+	form.encoding = 'utf-8';
+	form.uploadDir = '/files';
+	form.keepExtensions = true;
+	form.maxFieldsSize = 2 * 1024 * 1024;
+	form.parse(req,function(err,fields,files){
+		if(err){
+			console.log(err);
+		}
+		var filename = files.resource.name;
+		//对文件名进行处理，防止上传同名文件
+		var nameArray = filename.split('.');
+		var type = nameArray[nameArray.length-1];
+		var name = '';
+		for (var i = 0; i < nameArray.length-1; i++) {
+			name = name + nameArray[i];
+		}
+		var rand = Math.random()*100 + 900;
+		var num = parseInt(rand,10);
+		var avatarName = name + num + '.' + type;
+		var newPath = form.uploadDir + avatarName;
+		fs.renameSync(files.resource.path,newPath);//重命名
+		if(next && typeof(next) === "function"){
+			next(newPath);
+		}
+	});*/
+	//这里是测试时
+	var newPath = "/files";//文件存储地址
+	if(next && typeof(next) === "function"){
+		next(newPath);
+	}
+}
 //查询登录状态
 router.get('/api/isLogin',(req,res) => {
   let account = req.session.account;
@@ -78,7 +116,7 @@ router.get('/api/isLogin',(req,res) => {
 router.get('/api/logoff',(req,res) => {
   req.session.account = null;
   res.send("log off success!");
-});
+});/*
 // 登录接口
 router.post('/api/login',(req,res) => {
     // 通过模型去查找数据库
@@ -154,7 +192,7 @@ router.post('/api/login',(req,res) => {
             }
         }
     });
-});
+});*/
 //修改密码
 router.post('/api/changePassword',(req,res) => {
   console.log(req.body.newPassword);
@@ -324,7 +362,7 @@ router.post('/api/createProjectGroup',(req,res) => {
   let name = req.body.name;
   let caption = req.body.caption;
   models.ProjectG.count((err,count) => {
-    var id = (new Date().getFullYear())+"01"+(Array(5).join('0')+count).slice(-5);
+    var id = (new Date().getFullYear())+"01"+(Array(5).join('0')+count).slice(-5);//01表示是项目组的id
     var projectG = {
       name : name,
       id : id,
@@ -379,5 +417,234 @@ router.post('/api/createProject',(req,res) => {
       });
     }
   });
+});
+
+
+///////////////////////////////////////////////////
+
+
+//20行 submitAssetInfos
+router.post('/api/submitAssetInfos',(req,res) => {
+	console.log("********");
+	//let deviceId = req.body.deviceId;	
+	//let oldId = req.body.oldId;
+	//let newId = req.body.newId;
+	//let purchaseDate = req.body.purchaseDate;
+	let deviceId = "123456789";
+	let oldId = "20170200002";
+	let newId = "9876543231";
+	let purchaseDate = new Date();
+	//文件处理,再回调函数中处理其他信息
+	upload(req,(path) => {
+		let ticket = path;
+		models.Assets.update({'id':oldId},{$set:{'id':newId,'deviceId':deviceId,'purchaseDate':purchaseDate,'ticket':ticket}},(err) => {
+			if(err){
+			  console.log(err);
+			  res.send("0");
+			}else{
+			  res.send("1");
+			}
+		});
+	});
+});
+//22行 checkAsset 固定资产管理员最终审核
+router.post('/api/checkAsset',(req,res) => {
+
+	//let id = req.body.id;
+	//let state = req.body.state;
+	let id = req.body.id;
+	let state = 4;
+	models.Asstes.update({'id':id},{$set:{'state':state}},(err) => {
+		if(err){
+		  console.log(err);
+		  res.send("0");
+		}else{
+		  res.send("1");
+		}
+	});
+});
+//23行 checkMoney 财务管理员最终审核
+router.post('/api/checkMoney',(req,res) => {
+	let id = req.body.id;
+	let state = req.body.state;
+	let choice = req.body.choice;
+	//let id = req.body.id;
+	//let state = req.body.state;
+	//let choice = req.body.choice;
+	switch(choice){
+		case 1:
+			models.Asstes.update({'id':id},{$set:{'state':state}},(err) => {
+				if(err){
+				  console.log(err);
+				  res.send("0");
+				}else{
+				  res.send("1");
+				}
+			});
+			break;
+		case 2:
+			models.Render.update({'id':id},{$set:{'state':state}},(err) => {
+				if(err){
+				  console.log(err);
+				  res.send("0");
+				}else{
+				  res.send("1");
+				}
+			});
+			break;
+		case 3:
+			models.Sthesis.update({'id':id},{$set:{'state':state}},(err) => {
+				if(err){
+				  console.log(err);
+				  res.send("0");
+				}else{
+				  res.send("1");
+				}
+			});
+			break;
+		case 4:
+			models.Patent.update({'id':id},{$set:{'state':state}},(err) => {
+				if(err){
+				  console.log(err);
+				  res.send("0");
+				}else{
+				  res.send("1");
+				}
+			});
+			break;
+		default:
+			console.log("choice错误！修改状态失败！");
+			res.send("0");
+			break;
+	}
+});
+//32行 submitRenderInfos 上传报账票据
+router.post('/api/submitRenderInfos',(req,res) => {
+	let id = req.body.id;
+	//let id = req.body.id;
+	upload(req,(path) => {
+		let ticket = path;
+		models.Render.update({'id':id},{$set:{'ticket':ticket}},(err) => {
+			if(err){
+			  console.log(err);
+			  res.send("0");
+			}else{
+			  res.send("1");
+			}
+		});
+	});
+});
+//38行 sthesisApply 提交小论文申请
+router.post('/api/sthesisApply',(req,res) => {
+	let teacher = req.body.teacher;
+	let title = req.body.title;
+	let authors = req.body.authors;
+	let cost = req.body.cost;
+	upload(req,(path) => {
+		let content = path;
+		models.Sthesis.count((err,count) => {
+			var id = (new Date().getFullYear())+"06"+(Array(5).join('0')+count).slice(-5);
+			var apply = {
+				title : title,
+				id : id,
+				authors : authors,
+				apply : req.session.account,
+				projectId : new Array(),
+				teacher : teacher,
+				account : "",
+				state : 1,
+				content : content,
+				cost : cost,
+				time : new Date()
+			};
+			models.Sthesis.create(apply,(err) => {
+				if(err){
+				  console.log("创建失败");
+				  res.send("0");
+				}else{
+				  console.log("新建小论文"+id);
+				  res.send("1");
+				}
+			});
+		});
+	});
+});
+//39行 checkSthesisApply 老师审核申请
+router.post('/api/checkSthesisApply',(req,res) => {
+	let id = req.body.id;
+	let state = req.body.state;
+	let projectId = req.body.projectId;
+	models.Sthesis.update({'id':id},{$set:{'state':state,'projectId':projectId}},(err) => {
+		if(err){
+		  console.log(err);
+		  res.send("0");
+		}else{
+		  res.send("1");
+		}
+	});
+});
+//48行 gthesisApply 提交毕业论文申请
+router.post('/api/gthesisApply',(req,res) => {
+	let title = req.body.title;
+	let authors = req.body.authors;
+	let editor = req.body.editor;
+	let teacher = req.body.teacher; 
+	upload(req,(path) => {
+		let content = path;
+		models.Gthesis.count((err,count) => {
+			var id = (new Date().getFullYear())+"07"+(Array(5).join('0')+count).slice(-5);
+			var apply = {
+				title : title,
+				id : id,
+				authors : authors,
+				apply : req.session.account,
+				projectId : "",
+				teacher : teacher,
+				editor : editor,
+				state : 1,
+				content : content,
+				time : new Date()
+			};
+			models.Gthesis.create(apply,(err) => {
+				if(err){
+				  console.log("创建失败");
+				  res.send("0");
+				}else{
+				  console.log("新建毕业论文"+id);
+				  res.send("1");
+				}
+			});
+		});
+	});
+});
+//49行 checkGthesisApply 老师审核申请
+router.post('/api/checkGthesisApply',(req,res) => {
+	let id = req.body.id;
+	let state = req.body.state;
+	let projectId = req.body.projectId;
+	models.Gthesis.update({'id':id},{$set:{'state':state,'projectId':projectId}},(err) => {
+		if(err){
+		  console.log(err);
+		  res.send("0");
+		}else{
+		  res.send("1");
+		}
+	});
+});
+//50行 submitGthesisInfos 提交毕业论文最终pdf版
+router.post('/api/submitGthesisInfos',(req,res) => {
+	let id = req.body.id;
+	let state = req.body.state;
+	upload(req,(path) => {
+		let content = path;
+		models.Gthesis.update({'id':id},{$set:{'state':state,'content':content}},(err) => {
+			if(err){
+			  console.log(err);
+			  res.send("0");
+			}else{
+			  res.send("1");
+			}
+		});
+	});
 });
 module.exports = router;
