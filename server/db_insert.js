@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 var mydate = new Date();
+=======
+var mydate = Date();
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 //根管理员
 rootmanage = {
 	type : 0,
@@ -107,7 +111,11 @@ sthesis = {
 	projectId : ["20171302001"],
 	teacher : "568842",//指定审核老师
 	account : "123456789",
+<<<<<<< HEAD
 	state : 5,
+=======
+	state : 0,
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 	content : "./Sthesis/论联合政府.pdf",
 	cost : 500,
 	time : mydate
@@ -121,7 +129,11 @@ gthesis = {
 	projectId : "20171302001",
 	teacher : "568842",//指导老师，是该学生对应的唯一的指导老师
 	editor : "568842",//审核老师，是该学生自己填的审核的老师
+<<<<<<< HEAD
 	state : 5,
+=======
+	state : 0,
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 	content : "./Gthesis/关于科研项目管理系统的研究.pdf",
 	time : mydate
 }
@@ -133,7 +145,11 @@ patent = {
 	inventor : ["张尚斌"],
 	apply : "568842",
 	projectId : "20171302001",
+<<<<<<< HEAD
 	state : 5,
+=======
+	state : 1,
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 	description : "关于辐射探测器的改进",
 	applystate : 1,
 	content : "./Patents/具有加热设备的辐射探测器.pdf",
@@ -151,7 +167,11 @@ assets = {
 	cost : 6000,//价格
 	projectId : "20171302001",//项目号
 	account : "123456789",//账号
+<<<<<<< HEAD
 	devicestate : 1,//设备状态1：正常 2：待修 3：报废
+=======
+	deviceState : 1,//设备状态1：正常 2：待修 3：报废
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 	user : "13020031154",//使用人
 	ticket : "./Tickets/20170000002.pdf",//报账票据集合为一个pdf文件后上传
 	state : 1,//申请审批状态
@@ -166,7 +186,10 @@ render = {
 	description : "去西安来回差旅费共2000元人名币",
 	account : "123456789",
 	apply : "13020031154",
+<<<<<<< HEAD
 	projectId : "20171302001",
+=======
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 	cost : 2000,
 	state : 2,
 	ticket : "./Tickets/20170000001.pdf",//报账票据集合成一个pdf文件后上传
@@ -231,4 +254,8 @@ sThesis.insert(sthesis);
 patentS.insert(patent);
 fixedAssets.insert(assets);
 renderAccount.insert(render);
+<<<<<<< HEAD
 projectApply.insert(projectapply);
+=======
+projectApply.insert(projectapply);
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617

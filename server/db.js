@@ -9,6 +9,28 @@ db.once('error',() => console.log('Mongo connection error'));
 db.once('open',() => console.log('Mongo connection successed'));
 /************** 定义模式loginSchema **************/
 const loginSchema = mongoose.Schema({
+<<<<<<< HEAD
+    account : String,
+=======
+    account : { type:String, unique: true },
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
+    password : String,
+    type: Number,  //用户类型 0:根管理员 1:学生 2:教师 3:科研成果管理员 4:财务管理员 5:固定资产管理员
+    name : String,
+    email : String,
+    phone : String,
+    state : Number,//0未激活 1激活
+    teacher : String,//非学生时此项为null
+    projects : Array,//学生参加的项目列表或老师所拥有的项目列表
+    time : Date
+});
+<<<<<<< HEAD
+/************** 定义模式projectapplySchema **************/
+const projectapplySchema = mongoose.Schema({
+	account : String,
+=======
+/************** 定义模式userSchema **************
+const userSchema = mongoose.Schema({
     account : String,
     password : String,
     type: Number,  //用户类型 0:根管理员 1:学生 2:教师 3:科研成果管理员 4:财务管理员 5:固定资产管理员
@@ -22,7 +44,8 @@ const loginSchema = mongoose.Schema({
 });
 /************** 定义模式projectapplySchema **************/
 const projectapplySchema = mongoose.Schema({
-	account : String,
+	account : { type:String, unique: true },
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 	projectId : String,
 	teacher : String,
 	state : Number,
@@ -33,7 +56,11 @@ const projectapplySchema = mongoose.Schema({
     name : String,
     teacher: String,
     students: Array,
+<<<<<<< HEAD
     id: String,//项目编号
+=======
+    id: { type:String, unique: true },//项目编号
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
     group : String,
     account : String,//涉及钱的那个账号
     description: String,
@@ -42,7 +69,11 @@ const projectapplySchema = mongoose.Schema({
 /************** 定义模式projectGSchema **************/
 const projectGSchema = mongoose.Schema({
 	name : String,
+<<<<<<< HEAD
 	id : String,//项目组编号
+=======
+	id : { type:String, unique: true },//项目组编号
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 	caption : String,
 	projects : Array,
 	teachers : Array,
@@ -52,7 +83,11 @@ const projectGSchema = mongoose.Schema({
 /************** 定义模式sthesisSchema **************/
 const sthesisSchema = mongoose.Schema({
 	title : String,
+<<<<<<< HEAD
 	id : String,
+=======
+	id : { type:String, unique: true },
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 	authors : Array,
 	apply : String,//这条纪录由谁申请的
 	projectId : Array,
@@ -66,7 +101,11 @@ const sthesisSchema = mongoose.Schema({
 /************** 定义模式gthesisSchema **************/
 const gthesisSchema = mongoose.Schema({
 	title : String,
+<<<<<<< HEAD
 	id : String,
+=======
+	id : { type:String, unique: true },
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 	authors : String,
 	apply : String,
 	projectId : String,
@@ -79,7 +118,11 @@ const gthesisSchema = mongoose.Schema({
 /************** 定义模式patentSchema **************/
 const patentSchema = mongoose.Schema({
 	name : String,
+<<<<<<< HEAD
 	id : String,//专利申请号或专利号
+=======
+	id : { type:String, unique: true },
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 	applicant : String,
 	inventor : Array,
 	apply : String,
@@ -93,7 +136,11 @@ const patentSchema = mongoose.Schema({
 });
 /************** 定义模式assetsSchema **************/
 const assetsSchema = mongoose.Schema({
+<<<<<<< HEAD
 	id : String,//商品统一编码
+=======
+	id : { type:String, unique: true },//商品统一编码
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 	deviceId : String,//设备号
 	band : String,//设备名
 	name : String,//设备厂商
@@ -112,12 +159,19 @@ const assetsSchema = mongoose.Schema({
 });
 /************** 定义模式renderSchema **************/
 const renderSchema = mongoose.Schema({
+<<<<<<< HEAD
 	id : String,
+=======
+	id : { type:String, unique: true },
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 	kind : String,
 	description : String,
 	account : String,
 	apply : String,
+<<<<<<< HEAD
 	projectId : String,
+=======
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 	cost : Number,
 	state : Number,
 	ticket : String,//报账票据集合成一个pdf文件后上传

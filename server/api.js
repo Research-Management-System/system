@@ -6,6 +6,7 @@ const router = express.Router();
 const formidable = require('formidable');
 const fs = require('fs');
 
+<<<<<<< HEAD
 //文件处理函数
 function upload(req,next){                         //next是回调函数
 	这里是实际的
@@ -42,6 +43,8 @@ function upload(req,next){                         //next是回调函数
 	// 	next(newPath);
 	// }
 }
+=======
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
 //查询登录状态
 router.get('/api/isLogin',(req,res) => {
   let account = req.session.account;
@@ -94,10 +97,14 @@ router.get('/api/isLogin',(req,res) => {
                       allData.assets = assets;
                       models.Render.find((err,renders) => {
                         allData.renders = renders;
+<<<<<<< HEAD
                         models.Login.find({teacher:account,state:0},(err,signInApply) => {
                           allData.signInApply = signInApply;
                           res.send(allData);
                         });
+=======
+                        res.send(allData);
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
                       });
                     });
                   });
@@ -177,10 +184,14 @@ router.post('/api/login',(req,res) => {
                             allData.assets = assets;
                             models.Render.find((err,renders) => {
                               allData.renders = renders;
+<<<<<<< HEAD
                               models.Login.find({teacher:account,state:0},(err,signInApply) => {
                                 allData.signInApply = signInApply;
                                 res.send(allData);
                               });
+=======
+                              res.send(allData);
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
                             });
                           });
                         });
@@ -206,6 +217,27 @@ router.post('/api/changePassword',(req,res) => {
       console.log(err);
       let msg = "0";
       res.send(msg);
+<<<<<<< HEAD
+=======
+    }else{
+      let msg = "1";
+      res.send(msg);
+    }
+  })
+});
+
+//修改信息
+router.post('/api/changeUserinfo',(req,res) => {
+  let account = req.body.account;
+  let name = req.body.name;
+  let email = req.body.email;
+  let phone = req.body.phone;
+  models.Login.update({'account':account},{$set:{'name':name , 'email':email , 'phone':phone}},function(err){
+    if(err){
+      console.log(err);
+      let msg = "0";
+      res.send(msg);
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
     }else{
       let msg = "1";
       res.send(msg);
@@ -569,6 +601,7 @@ router.post('/api/sthesisApply',(req,res) => {
 		});
 	});
 });
+<<<<<<< HEAD
 //39行 checkSthesisApply 老师审核申请
 router.post('/api/checkSthesisApply',(req,res) => {
 	let id = req.body.id;
@@ -813,6 +846,32 @@ router.post('/api/uploadCertificate',(req,res) => {
         res.send("1");
       }
     });
+=======
+
+//学生加入项目
+router.post('/api/joinProject',(req,res) => {
+  let warn = 0;
+  let account = req.body.account;
+  let projectId = req.body.id;
+  let state = 0;
+  let time = Date();
+  let teacher;
+
+  models.Login.find({ account : account },(err,student) => {
+    teacher = student.teacher;
+    var data = {"account":account,"projectId":projectId,"teacher":teacher,"state":state,"time":time};
+    models.Projectapply.create(data, function(err, result) { 
+      if(err){
+        console.log(err);
+        let msg = "0";
+        res.send(msg);
+      }     
+      else{
+        let msg = "1";
+        res.send(msg);
+      }
+  });
+>>>>>>> f9fd19e2e0ae948ae1380717c904dad1d0228617
   });
 });
 
