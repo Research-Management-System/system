@@ -8,7 +8,7 @@ const fs = require('fs');
 
 //文件处理函数
 function upload(req,next){                         //next是回调函数
-	/*这里是实际的
+	这里是实际的
 	var message = '';
 	var form = new formidable.IncomingForm();//创建上传表单
 	form.encoding = 'utf-8';
@@ -35,12 +35,12 @@ function upload(req,next){                         //next是回调函数
 		if(next && typeof(next) === "function"){
 			next(newPath);
 		}
-	});*/
+	});
 	//这里是测试时
-	var newPath = "/files";//文件存储地址
-	if(next && typeof(next) === "function"){
-		next(newPath);
-	}
+	// var newPath = "/files";//文件存储地址
+	// if(next && typeof(next) === "function"){
+	// 	next(newPath);
+	// }
 }
 //查询登录状态
 router.get('/api/isLogin',(req,res) => {
@@ -647,4 +647,173 @@ router.post('/api/submitGthesisInfos',(req,res) => {
 		});
 	});
 });
+
+//财管审核并回复账号
+//状态更改功能成功
+router.post('/api/checkAccount',(req,res) => {
+  let id = req.body.id;
+  let account = req.body.account;
+
+  //根据id查找数据库的数据，并将其state改为3。
+  models.Assets.update({ 'id':id },{$set:{'state' : 3,'account' : account}},(err,result) => {
+    if(err){
+      console.log(err);
+      res.send("0");
+    }else{
+      console.log("update state and account success");
+      res.send("1");
+    }
+  });
+});
+
+//上传发表过的pdf(小论文流程)
+router.post('/api/submitSthesisInfos',(req,res) => {
+  let id = req.body.id;
+  let ticket = req.body.ticket;
+  upload(req,(path) => {
+    let ticketpath = path;
+    models.Assets.update({ 'id':id },{$set:{'ticket' : ticketpath}},(err,result) => {
+      if(err){
+        console.log(err);
+        res.send("0");
+      }else{
+        console.log("upload file success");
+        res.send("1");
+      }
+    });
+  });
+});
+
+//科研成果管理员最终审核
+router.post('/api/checkAchievements',(req,res) => {
+  let id = req.body.id;
+  let state = req.body.state;
+
+
+  //根据id查找数据库的数据，并将其state改为5。
+  models.Assets.update({ 'id':id },{$set:{'state' : 5}},(err,result) => {
+    if(err){
+      console.log(err);
+      res.send("0");
+    }else{
+      console.log("update finally state success");
+      res.send("1");
+    }
+  });
+});
+
+//提交专利申请
+//测试
+router.post('/api/login',(req,res) => {
+//router.post('/api/patentApply',(req,res) => {
+  //name、applicant、inventor、apply、projectId、description、applystate
+  let name = req.body.name;
+  let applicant = req.body.applicant;
+  let inventor = req.body.inventor;
+  let apply = req.body.apply;
+  let projectId = req.body.projectId;
+  let description = req.body.description;
+  let applystate = req.body.applystate;
+
+  // let name = "likthiis";
+  // let applicant = "ouc";
+  // let inventor = "who";
+  // let apply = "111";
+  // let projectId = "nohaveit";
+  // let description = null;
+  // let applystate = null;
+
+  models.ProjectG.count((err,count) => {
+    let id = (new Date().getFullYear())+"09"+(Array(5).join('0')+count).slice(-5);
+    var patent = {
+      name : name,
+      id : id,
+      applicant : applicant,
+      inventor : inventor,
+      apply : apply,
+      projectId : projectId,
+      state : 1,
+      description : description,
+      applystate : 1,
+      content : null,
+      cost : null,
+      time : new Date()
+    }
+    models.Patent.create(patent,(err) => {
+      if(err){
+        console.log("创建失败");
+        console.log(err);
+        res.send("0");
+      }else{
+        console.log("create patent success");
+        res.send("1");
+      }
+    });
+  });
+});
+
+//上传受理通知书和专利申请号以及费用预算
+router.post('/api/uploadAcceptance',(req,res) =>{
+//oldId、newId、content、applystate、cost
+  let oldId = req.body.oldId;
+  let newId = req.body.newId;
+  let content = req.body.content;
+  let applystate = req.body.applystate;
+  let cost = req.body.cost;
+
+  upload(req,(path) => {
+    let contentpath = path;
+    models.Patent.update({ 'id':oldId },{$set:{'id' : newId,'content' : contentpath,'applystate' : applystate,'cost' : cost}},(err,result) => {
+      if(err){
+        console.log("更新失败");
+        console.log(err);
+        res.send("0");
+      }else{
+        console.log("update patent success");
+        res.send("1");
+      }
+    });
+  });
+});
+
+//修改专利申请状态
+router.post('/api/changeApplyState',(req,res) => {
+  let id = req.body.id;
+  let applystate = req.body.applystate;
+
+  models.Patent.update({ 'id':id },{$set:{'applystate' : applystate}},(err,result) => {
+    if(err){
+      console.log("更新失败");
+      console.log(err);
+      res.send("0");
+    }else{
+      console.log("update patent success");
+      res.send("1");
+    }
+  });
+});
+
+//上传专利证书
+router.post('/api/uploadCertificate',(req,res) => {
+//oldId、applystate、content、newId
+  let oldId = req.body.oldId;
+  let applystate = req.body.applystate;
+  let content = req.body.content;
+  let newId = req.body.newId;
+
+  upload(req,(path) => {
+    let contentpath = path;
+    models.Patent.update({ 'id':oldId },{$set:{'id':newId,'applystate':applystate,'content':contentpath}},(err) => {
+      if(err){
+        console.log("更新失败");
+        console.log(err);
+        res.send("0");
+      }else{
+        console.log("update patent success");
+        res.send("1");
+      }
+    });
+  });
+});
+
 module.exports = router;
