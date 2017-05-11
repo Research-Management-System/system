@@ -1,8 +1,8 @@
 <template>
-  <div class="mod-gthesise-apply">
-    <h3>毕业论文申请</h3>
-    <el-button class="apply-btn" type="primary" @click="gthesiseApply = true">创建申请</el-button>
-    <el-dialog title="毕业论文申请" v-model="gthesiseApply">
+  <div class="mod-sthesise-apply">
+    <h3>小论文申请</h3>
+    <el-button class="apply-btn" type="primary" @click="sthesiseApply = true">创建申请</el-button>
+    <el-dialog title="小论文申请" v-model="sthesiseApply">
       <el-form>
         <el-form-item>
           <el-input v-model="title" auto-complete="off" placeholder="论文标题"></el-input>
@@ -16,18 +16,18 @@
         <el-form-item>
           <el-input v-model="editor" auto-complete="off" placeholder="审核教师工号"></el-input>
         </el-form-item>
-        <el-form-item label="论文及票据上传">
+        <el-form-item label="论文上传">
           <input type="file" id="uploadPdf" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="gthesiseApply = false">取 消</el-button>
+        <el-button @click="sthesiseApply = false">取 消</el-button>
         <el-button type="primary" @click="sendApply">确 定</el-button>
       </div>
     </el-dialog>
     <h3 v-if="this.data.userInfo.type ===1">我的申请</h3>
-    <div class="gthesise-table">
-      <el-table :data="gthesises" border style="width: 100%">
+    <div class="sthesise-table">
+      <el-table :data="sthesises" border style="width: 100%">
         <el-table-column prop="id" label="论文编号">
         </el-table-column>
         <el-table-column prop="title" label="论文标题">
@@ -42,14 +42,14 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination class="page-change" @current-change="pageChange" layout="prev, pager, next" :total="gthesiseLength" :page-size="10">
+      <el-pagination class="page-change" @current-change="pageChange" layout="prev, pager, next" :total="sthesiseLength" :page-size="10">
       </el-pagination>
     </div>
   </div>
 </template>
 
 <script>
-const applyState = ['被拒绝','待教师审核','待财务管理审核','待科研管理审核','审核通过'];
+const applyState = ['待教师审核','待管理审核','审核通过'];
 export default {
   data(){
     return {
@@ -57,16 +57,16 @@ export default {
       authors: '',
       teacher: '',
       editor: '',
-      gthesiseApply: false,
-      gthesises: this.data.gthesises.slice(0,10),
-      gthesiseLength: this.data.gthesises.length,
+      sthesiseApply: false,
+      sthesises: this.data.sthesises.slice(0,10),
+      sthesiseLength: this.data.sthesises.length
     }
   },
   props: ['data'],
   methods: {
     pageChange(currentPage){
-      this.gthesises = this.data.gthesises.slice(((currentPage-1)*10),currentPage*10);
-      this.gthesises.forEach(item => {
+      this.sthesises = this.data.sthesises.slice(((currentPage-1)*10),currentPage*10);
+      this.sthesises.forEach(item => {
         item.state = applyState[item.state];
       });
     },
@@ -83,7 +83,7 @@ export default {
     }
   },
   created() {
-    this.gthesises.forEach(item => {
+    this.sthesises.forEach(item => {
       item.state = applyState[item.state];
     });
   }
@@ -91,11 +91,11 @@ export default {
 </script>
 
 <style lang="less">
-.mod-gthesise-apply{
+.mod-sthesise-apply{
   .apply-btn{
     margin-bottom: 5px;
   }
-  .gthesise-table{
+  .sthesise-table{
     .cell{
       white-space:nowrap;
       overflow:hidden;
