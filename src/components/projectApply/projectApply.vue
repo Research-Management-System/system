@@ -46,9 +46,9 @@ export default {
   methods: {
     pageChange(currentPage){
       this.applys = this.data.projectApply.slice(((currentPage-1)*10),currentPage*10);
-      this.applys.forEach(item => {
-        item.state = applyState[item.state];
-      })
+      // this.applys.forEach(item => {
+      //   item.state = applyState[item.state];
+      // })
     },
     handleApply(obj,state) {
       let data = {
@@ -99,12 +99,12 @@ export default {
           });
       }
     }
-  },
-  created(){
-    this.applys.forEach(item => {
-      item.state = applyState[item.state];
-    });
   }
+  // created(){
+  //   this.applys.forEach(item => {
+  //     item.state = applyState[item.state];
+  //   });
+  // }
 }
 </script>
 

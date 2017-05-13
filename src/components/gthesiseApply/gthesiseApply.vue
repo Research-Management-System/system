@@ -16,8 +16,10 @@
         <el-form-item>
           <el-input v-model="editor" auto-complete="off" placeholder="审核教师工号"></el-input>
         </el-form-item>
-        <el-form-item label="论文及票据上传">
-          <input type="file" id="uploadPdf" />
+        <el-form-item label="论文上传">
+          <form action="/api/fileupload" method="post" enctype='multipart/form-data'  onsubmit="return checkTask(this)">
+              <input type="file" id="uploadPdf" />
+          </form>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -49,6 +51,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 const applyState = ['被拒绝','待教师审核','待财务管理审核','待科研管理审核','审核通过'];
 export default {
   data(){
@@ -77,9 +80,20 @@ export default {
         teacher: this.teacher,
         editor: this.editor
       };
-      let file = document.getElementById('uploadPdf').value;
-      console.log(data);
-      console.log(file);
+      axios.post('/api/gthesisApply',data).then((response) => {
+        console.log(response.data);
+        if(response.data === 1){
+          console,log("hhh");
+          location.reload();
+        }else{
+          this.$alert('操作失败', '提示', {
+            confirmButtonText: '确定',
+            callback: action => {
+              location.reload();
+            }
+          });
+        }
+      });
     }
   },
   created() {

@@ -413,10 +413,9 @@ router.post('/api/createProject',(req,res) => {
     }
   });
 });
-
-//20行 submitAssetInfos 
+//20行 submitAssetInfos
 router.post('/api/submitAssetInfos',(req,res) => {
-	let deviceId = req.body.deviceId;	
+	let deviceId = req.body.deviceId;
 	let oldId = req.body.oldId;
 	let newId = req.body.newId;
 	let purchaseDate = req.body.purchaseDate;
@@ -433,7 +432,7 @@ router.post('/api/submitAssetInfos',(req,res) => {
 		});
 	});
 });
-//22行 checkAsset 固定资产管理员最终审核 
+//22行 checkAsset 固定资产管理员最终审核
 router.post('/api/checkAsset',(req,res) => {
 	let id = req.body.id;
 	let state = req.body.state;
@@ -446,7 +445,7 @@ router.post('/api/checkAsset',(req,res) => {
 		}
 	});
 });
-//23行 checkMoney 财务管理员最终审核 
+//23行 checkMoney 财务管理员最终审核
 router.post('/api/checkMoney',(req,res) => {
 	let id = req.body.id;
 	let state = req.body.state;
@@ -569,7 +568,7 @@ router.post('/api/gthesisApply',(req,res) => {
 	let authors = req.body.authors;
 	let editor = req.body.editor;
 	let teacher = req.body.teacher;
-	let apply = req.session.account; 
+	let apply = req.session.account;
 	upload(req,(path) => {
 		let content = path;
 		models.Gthesis.count((err,count) => {
