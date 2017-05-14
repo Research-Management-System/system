@@ -6,12 +6,12 @@ const router = express.Router();
 const formidable = require('formidable');
 const fs = require('fs');
 
-//文件处理函数
-function upload(req,next){                         //next是回调函数
+//文件上传处理api
+router.post('/api/upload',(req,res) => {
 	var message = '';
 	var form = new formidable.IncomingForm();//创建上传表单
 	form.encoding = 'utf-8';
-	form.uploadDir = '/files';
+	form.uploadDir = './files';
 	form.keepExtensions = true;
 	form.maxFieldsSize = 2 * 1024 * 1024;
 	form.parse(req,function(err,fields,files){
@@ -31,11 +31,9 @@ function upload(req,next){                         //next是回调函数
 		var avatarName = name + num + '.' + type;
 		var newPath = form.uploadDir + avatarName;
 		fs.renameSync(files.resource.path,newPath);//重命名
-		if(next && typeof(next) === "function"){
-			next(newPath);
-		}
+		res.send(newPath);
 	});
-}
+});
 //查询登录状态
 router.get('/api/isLogin',(req,res) => {
   let account = req.session.account;
@@ -189,12 +187,9 @@ router.post('/api/login',(req,res) => {
 });
 //修改密码
 router.post('/api/changePassword',(req,res) => {
-  console.log(req.body.newPassword);
-	console.log(req.body.oldPassword);
   let account = req.body.account;
   let password = req.body.newPassword;
-	let prepassword = req.body.oldPassword;
-
+  let prepassword = req.body.oldPassword;
   models.Login.update({$and:[{'account':account},{'password':prepassword}]},{$set:{'password':req.body.newPassword}},function(err){
     if(err){
       console.log(err);
@@ -206,15 +201,29 @@ router.post('/api/changePassword',(req,res) => {
     }
   });
 });
+//重置密码
+router.post('/api/resetPassword',(req,res) => {
+	let account = req.body.account;
+	models.Login.update({'account':account},{$set:{'password':account}},function(err){
+	  if(err){
+	    console.log(err);
+	    let msg = "0";
+	    res.send(msg);
+	  }else{
+	    let msg = "1";
+	    res.send(msg);
+	  }
+	});
+});
 //用户注册
 router.post('/api/signIn',(req,res) => {
-	let account = req.body.account;
-	let password = req.body.password;
-	let name = req.body.name;
-	let email = req.body.email;
-	let phone = req.body.phone;
-	let type = req.body.type;
-	let teacher = req.body.teacher;
+  let account = req.body.account;
+  let password = req.body.password;
+  let name = req.body.name;
+  let email = req.body.email;
+  let phone = req.body.phone;
+  let type = req.body.type;
+  let teacher = req.body.teacher;
   let state = 1;
   if(type===1){
     state = 0;
@@ -317,7 +326,6 @@ router.post('/api/checkJoinProject',(req,res) => {
 router.post('/api/joinProject',(req,res) => {
   let account = req.body.account;
   let projectId = req.body.id;
-  console.log(typeof(projectId));
   let state = 0;
   models.Projectapply.findOne({$and:[{'account':account},{'projectId':projectId}]},(err,apply) =>{
     if(apply){
@@ -414,23 +422,22 @@ router.post('/api/createProject',(req,res) => {
   });
 });
 
+//固定资产管理---------------------------------------------------------
 //20行 submitAssetInfos 
 router.post('/api/submitAssetInfos',(req,res) => {
 	let deviceId = req.body.deviceId;	
 	let oldId = req.body.oldId;
 	let newId = req.body.newId;
 	let purchaseDate = req.body.purchaseDate;
-	//文件处理,再回调函数中处理其他信息
-	upload(req,(path) => {
-		let ticket = path;
-		models.Assets.update({'id':oldId},{$set:{'id':newId,'deviceId':deviceId,'purchaseDate':purchaseDate,'ticket':ticket}},(err) => {
-			if(err){
-			  console.log(err);
-			  res.send("0");
-			}else{
-			  res.send("1");
-			}
-		});
+	let path = req.body.path;
+	let ticket = path;
+	models.Assets.update({'id':oldId},{$set:{'id':newId,'deviceId':deviceId,'purchaseDate':purchaseDate,'ticket':ticket}},(err) => {
+		if(err){
+		  console.log(err);
+		  res.send("0");
+		}else{
+		  res.send("1");
+		}
 	});
 });
 //22行 checkAsset 固定资产管理员最终审核 
@@ -501,16 +508,15 @@ router.post('/api/checkMoney',(req,res) => {
 //32行 submitRenderInfos 上传报账票据
 router.post('/api/submitRenderInfos',(req,res) => {
 	let id = req.body.id;
-	upload(req,(path) => {
-		let ticket = path;
-		models.Render.update({'id':id},{$set:{'ticket':ticket,'state':4}},(err) => {
-			if(err){
-			  console.log(err);
-			  res.send("0");
-			}else{
-			  res.send("1");
-			}
-		});
+	let path = req.body.path;
+	let ticket = path;
+	models.Render.update({'id':id},{$set:{'ticket':ticket,'state':4}},(err) => {
+		if(err){
+		  console.log(err);
+		  res.send("0");
+		}else{
+		  res.send("1");
+		}
 	});
 });
 //38行 sthesisApply 提交小论文申请
@@ -519,35 +525,34 @@ router.post('/api/sthesisApply',(req,res) => {
 	let title = req.body.title;
 	let authors = req.body.authors;
 	let cost = req.body.cost;
-	upload(req,(path) => {
-		let content = path;
-		models.Sthesis.count((err,count) => {
-			count++;
-			var id = (new Date().getFullYear())+"06"+(Array(5).join('0')+count).slice(-5);
-			var apply = {
-				title : title,
-				id : id,
-				authors : authors,
-				apply : req.session.account,
-				projectId : new Array(),
-				teacher : teacher,
-				account : "",
-				state : 1,
-				content : content,
-				cost : cost,
-				time : new Date()
-			};
-			models.Sthesis.create(apply,(err) => {
-				if(err){
-				  console.log("创建失败");
-				  res.send("0");
-				}else{
-				  console.log("新建小论文"+id);
-				  res.send("1");
-				}
-			});
+	let path = req.body.path;
+	let content = path;
+	models.Sthesis.count((err,count) => {
+		count++;
+		var id = (new Date().getFullYear())+"06"+(Array(5).join('0')+count).slice(-5);
+		var apply = {
+			title : title,
+			id : id,
+			authors : authors,
+			apply : req.session.account,
+			projectId : new Array(),
+			teacher : teacher,
+			account : "",
+			state : 1,
+			content : content,
+			cost : cost,
+			time : new Date()
+		};
+		models.Sthesis.create(apply,(err) => {
+			if(err){
+			  console.log("创建失败");
+			  res.send("0");
+			}else{
+			  console.log("新建小论文"+id);
+			  res.send("1");
+			}
 		});
-	});
+	});	
 });
 //39行 checkSthesisApply 老师审核申请
 router.post('/api/checkSthesisApply',(req,res) => {
@@ -569,33 +574,32 @@ router.post('/api/gthesisApply',(req,res) => {
 	let authors = req.body.authors;
 	let editor = req.body.editor;
 	let teacher = req.body.teacher;
-	let apply = req.session.account; 
-	upload(req,(path) => {
-		let content = path;
-		models.Gthesis.count((err,count) => {
-			count++;
-			var id = (new Date().getFullYear())+"07"+(Array(5).join('0')+count).slice(-5);
-			var apply = {
-				title : title,
-				id : id,
-				authors : authors,
-				apply : apply,
-				projectId : "",
-				teacher : teacher,
-				editor : editor,
-				state : 1,
-				content : content,
-				time : new Date()
-			};
-			models.Gthesis.create(apply,(err) => {
-				if(err){
-				  console.log("创建失败");
-				  res.send("0");
-				}else{
-				  console.log("新建毕业论文"+id);
-				  res.send("1");
-				}
-			});
+	let apply = req.session.account;
+	let path = req.body.path;
+	let content = path;
+	models.Gthesis.count((err,count) => {
+		count++;
+		var id = (new Date().getFullYear())+"07"+(Array(5).join('0')+count).slice(-5);
+		var apply = {
+			title : title,
+			id : id,
+			authors : authors,
+			apply : apply,
+			projectId : "",
+			teacher : teacher,
+			editor : editor,
+			state : 1,
+			content : content,
+			time : new Date()
+		};
+		models.Gthesis.create(apply,(err) => {
+			if(err){
+			  console.log("创建失败");
+			  res.send("0");
+			}else{
+			  console.log("新建毕业论文"+id);
+			  res.send("1");
+			}
 		});
 	});
 });
@@ -617,16 +621,15 @@ router.post('/api/checkGthesisApply',(req,res) => {
 router.post('/api/submitGthesisInfos',(req,res) => {
 	let id = req.body.id;
 	let state = req.body.state;
-	upload(req,(path) => {
-		let content = path;
-		models.Gthesis.update({'id':id},{$set:{'state':state,'content':content}},(err) => {
-			if(err){
-			  console.log(err);
-			  res.send("0");
-			}else{
-			  res.send("1");
-			}
-		});
+	let path = req.body.path;
+	let content = path;
+	models.Gthesis.update({'id':id},{$set:{'state':state,'content':content}},(err) => {
+		if(err){
+		  console.log(err);
+		  res.send("0");
+		}else{
+		  res.send("1");
+		}
 	});
 });
 //21行 downloadFiles 下载文件
@@ -690,9 +693,6 @@ router.post('/api/downloadFiles',(req,res) => {
 			break;
 	}
 });
-
-
-//yyx------------------------------------------------------------------------
 //学生向老师提交购买申请(固定资产入库)
 router.post('/api/assetApply',(req,res)=>{
   let band = req.body.band;
@@ -731,7 +731,6 @@ router.post('/api/assetApply',(req,res)=>{
     });
   });
 });
-
 //老师审核购买申请(固定资产入库)
 router.post('/api/checkAssetApply',(req,res)=>{
   let id = req.body.id;
@@ -744,7 +743,6 @@ router.post('/api/checkAssetApply',(req,res)=>{
   	}
   });
 });
-
 //修改设备状态(固定资产入库)
 router.post('/api/changeState',(req,res)=>{
   let id = req.body.id;
@@ -757,7 +755,6 @@ router.post('/api/changeState',(req,res)=>{
     }
   });
 });
-
 //提交报账申请(不入库报账)
 router.post('/api/renderApply',(req,res)=>{
   let kind = req.body.kind;
@@ -789,7 +786,6 @@ router.post('/api/renderApply',(req,res)=>{
     });
   });
 });
-
 //老师审核报账申请（不入库报账）
 router.post('/api/checkRenderApply',(req,res)=>{
   let id = req.body.id;
@@ -802,9 +798,6 @@ router.post('/api/checkRenderApply',(req,res)=>{
     }
   });
 });
-
-
-//whq---------------------------------------------------------------------------
 //财管审核并回复账号
 router.post('/api/checkAccount',(req,res) => {
   let id = req.body.id;
@@ -862,24 +855,21 @@ router.post('/api/checkAccount',(req,res) => {
 			break;
 	}
 });
-
 //上传发表过的pdf(小论文流程)
 router.post('/api/submitSthesisInfos',(req,res) => {
   let id = req.body.id;
-  upload(req,(path) => {
-    let ticketpath = path;
-    models.Assets.update({ 'id':id },{$set:{'ticket' : ticketpath}},(err) => {
-      if(err){
-        console.log(err);
-        res.send("0");
-      }else{
-        console.log("upload file success");
-        res.send("1");
-      }
-    });
+  let path = req.body.path;
+  let ticketpath = path;
+  models.Assets.update({ 'id':id },{$set:{'ticket' : ticketpath}},(err) => {
+	if(err){
+	  	console.log(err);
+	    res.send("0");
+	}else{
+	    console.log("upload file success");
+	    res.send("1");
+	}
   });
 });
-
 //科研成果管理员最终审核
 router.post('/api/checkAchievements',(req,res) => {
   let id = req.body.id;
@@ -926,7 +916,6 @@ router.post('/api/checkAchievements',(req,res) => {
 		break;
 	}
 });
-
 //提交专利申请
 router.post('/api/patentApply',(req,res) => {
   let name = req.body.name;
@@ -963,28 +952,25 @@ router.post('/api/patentApply',(req,res) => {
     });
   });
 });
-
 //上传受理通知书和专利申请号以及费用预算
 router.post('/api/uploadAcceptance',(req,res) =>{
   let oldId = req.body.oldId;
   let newId = req.body.newId;
   let applystate = req.body.applystate;
   let cost = req.body.cost;
-  upload(req,(path) => {
-    let contentpath = path;
-    models.Patent.update({ 'id':oldId },{$set:{'id' : newId,'content' : contentpath,'applystate' : applystate,'cost' : cost}},(err,result) => {
-      if(err){
-        console.log("更新失败");
-        console.log(err);
-        res.send("0");
-      }else{
-        console.log("update patent success");
-        res.send("1");
-      }
-    });
+  let path = req.body.path;
+  let contentpath = path;
+  models.Patent.update({ 'id':oldId },{$set:{'id' : newId,'content' : contentpath,'applystate' : applystate,'cost' : cost}},(err,result) => {
+  	if(err){
+	    console.log("更新失败");
+	    console.log(err);
+	    res.send("0");
+	}else{
+	    console.log("update patent success");
+	    res.send("1");
+	}
   });
 });
-
 //修改专利申请状态
 router.post('/api/changeApplyState',(req,res) => {
   let id = req.body.id;
@@ -1000,24 +986,21 @@ router.post('/api/changeApplyState',(req,res) => {
     }
   });
 });
-
 //上传专利证书
 router.post('/api/uploadCertificate',(req,res) => {
   let oldId = req.body.oldId;
   let applystate = req.body.applystate;
   let newId = req.body.newId;
-
-  upload(req,(path) => {
-    let contentpath = path;
-    models.Patent.update({ 'id':oldId },{$set:{'id':newId,'applystate':applystate,'content':contentpath}},(err) => {
-      if(err){
-        console.log("更新失败"+err);
-        res.send("0");
-      }else{
-        console.log("update patent success");
-        res.send("1");
-      }
-    });
-  });
+  let path = req.body.path;
+  let contentpath = path;
+  models.Patent.update({ 'id':oldId },{$set:{'id':newId,'applystate':applystate,'content':contentpath}},(err) => {
+  	if(err){
+    	console.log("更新失败"+err);
+    	res.send("0");
+  	}else{
+    	console.log("update patent success");
+    	res.send("1");
+  	}
+　});
 });
 module.exports = router;
