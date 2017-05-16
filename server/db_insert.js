@@ -154,7 +154,7 @@ assets = {
 	devicestate : 1,//设备状态1：正常 2：待修 3：报废
 	user : "13020031154",//使用人
 	ticket : "./Tickets/20170000002.pdf",//报账票据集合为一个pdf文件后上传
-	state : 1,//申请审批状态
+	state : 5,//申请审批状态
 	teacher : "568842",
 	time : mydate//该条目生成时间
 }
@@ -168,7 +168,7 @@ render = {
 	apply : "13020031154",
 	projectId : "20171302001",
 	cost : 2000,
-	state : 2,
+	state : 5,
 	ticket : "./Tickets/20170000001.pdf",//报账票据集合成一个pdf文件后上传
 	time : mydate
 }

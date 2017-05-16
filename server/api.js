@@ -5,13 +5,201 @@ const express = require('express');
 const router = express.Router();
 const formidable = require('formidable');
 const fs = require('fs');
+const xlsx = require('node-xlsx');
 
+//下载报账表getRenderXlsx
+router.get('/api/getRenderXlsx',(req,res) => {
+	let year = req.body.year;
+	//let year = 2017;
+	//let month = null;
+	let month = req.body.month;
+	//先取出所有的数据再筛选
+	models.Render.find({'state':5},(err,renderdata1) => {
+		models.Assets.find({'state':5},(err,assetdata1) => {
+			models.Sthesis.find({'state':5},(err,sthesisdata1) =>{
+				models.Patent.find({'state':5},(err,patentdata1) => {
+					var renderdata = [['id','kind','account','apply','projectId','cost','ticket','time']];
+					var assetdata = [['id','deviceId','name','band','model','purchaseDate','cost','projectId','account','devicestate','user','ticket','teacher','time']];
+					var sthesisdata = [['title','id','authors','apply','projectId','teacher','account','content','cost','time']];
+					var patentdata = [['name','id','applicant','inventor','apply','projectId','content','cost','time']];
+					if(month===null){				//没月份--------------------
+						for(var i in renderdata1){
+							if(renderdata1[i].time.getFullYear()===year){
+								var temp = [];
+								temp.push(renderdata1[i].id);
+								temp.push(renderdata1[i].kind);
+								temp.push(renderdata1[i].account);
+								temp.push(renderdata1[i].apply);
+								temp.push(renderdata1[i].projectId);
+								temp.push(renderdata1[i].cost);
+								temp.push(renderdata1[i].ticket);
+								temp.push(""+renderdata1[i].time.getFullYear()+"."+renderdata1[i].time.getMonth()+"."+renderdata1[i].time.getDate());
+								renderdata.push(temp);
+							}
+						}
+						for(var i in assetdata1){
+							if(assetdata1[i].time.getFullYear()===year){
+								var temp = [];
+								temp.push(assetdata1[i].id);
+								temp.push(assetdata1[i].deviceId);
+								temp.push(assetdata1[i].name);
+								temp.push(assetdata1[i].band);
+								temp.push(assetdata1[i].model);
+								temp.push(""+assetdata1[i].purchaseDate.getFullYear()+"."+assetdata1[i].purchaseDate.getMonth()+"."+assetdata1[i].purchaseDate.getDate());
+								temp.push(assetdata1[i].cost);
+								temp.push(assetdata1[i].projectId);
+								temp.push(assetdata1[i].account);
+								assetdata1[i].devicestate===1?temp.push('正常'):(assetdata1[i].devicestate===2?temp.push('待修'):temp.push('报废'));
+								temp.push(assetdata1[i].user);
+								temp.push(assetdata1[i].ticket);
+								temp.push(assetdata1[i].teacher);
+								temp.push(""+assetdata1[i].time.getFullYear()+"."+assetdata1[i].time.getMonth()+"."+assetdata1[i].time.getDate());
+								assetdata.push(temp);
+							}
+						}
+						for(var i in sthesisdata1){
+							if(sthesisdata1[i].time.getFullYear()===year){
+								var temp = [];
+								temp.push(sthesisdata1[i].title);
+								temp.push(sthesisdata1[i].id);
+								var author = "";
+								for(var k in sthesisdata1[i].authors){
+									author += (sthesisdata1[i].authors[k]+" ");
+								}
+								temp.push(author);
+								temp.push(sthesisdata1[i].apply);
+								var projectIds = "";
+								for(var k in sthesisdata1[i].projectId){
+									projectIds += (sthesisdata1[i].projectId[k]+" ");
+								}
+								temp.push(projectIds);
+								temp.push(sthesisdata1[i].teacher);
+								temp.push(sthesisdata1[i].account);
+								temp.push(sthesisdata1[i].content);
+								temp.push(sthesisdata1[i].cost);
+								temp.push(""+sthesisdata1[i].time.getFullYear()+"."+sthesisdata1[i].time.getMonth()+"."+sthesisdata1[i].time.getDate());
+								sthesisdata.push(temp);
+							}
+						}
+						for(var i in patentdata1){
+							if(patentdata1[i].time.getFullYear()===year){
+								var temp = [];
+								temp.push(patentdata1[i].name);
+								temp.push(patentdata1[i].id);
+								temp.push(patentdata1[i].applicant);
+								var inventors = "";
+								for(var k in patentdata1[i].inventor){
+									inventors += (patentdata1[i].inventor[k]+" ");
+								}
+								temp.push(inventors);
+								temp.push(patentdata1[i].apply);
+								temp.push(patentdata1[i].projectId);
+								temp.push(patentdata1[i].content);
+								temp.push(patentdata1[i].cost);
+								temp.push(""+patentdata1[i].time.getFullYear()+"."+patentdata1[i].time.getMonth()+"."+patentdata1[i].time.getDate());
+								patentdata.push(temp);
+							}
+						}
+					}else{				//有月份---------------------------------
+						for(var i in renderdata1){
+							if(renderdata1[i].time.getFullYear()===year&&renderdata1[i].time.getMonth()===month){
+								var temp = [];
+								temp.push(renderdata1[i].id);
+								temp.push(renderdata1[i].kind);
+								temp.push(renderdata1[i].account);
+								temp.push(renderdata1[i].apply);
+								temp.push(renderdata1[i].projectId);
+								temp.push(renderdata1[i].cost);
+								temp.push(renderdata1[i].ticket);
+								temp.push(""+renderdata1[i].time.getFullYear()+"."+renderdata1[i].time.getMonth()+"."+renderdata1[i].time.getDate());
+								renderdata.push(temp);
+							}
+						}
+						for(var i in assetdata1){
+							if(assetdata1[i].time.getFullYear()===year&&assetdata1[i].time.getMonth()===month){
+								var temp = [];
+								temp.push(assetdata1[i].id);
+								temp.push(assetdata1[i].deviceId);
+								temp.push(assetdata1[i].name);
+								temp.push(assetdata1[i].band);
+								temp.push(assetdata1[i].model);
+								temp.push(""+assetdata1[i].purchaseDate.getFullYear()+"."+assetdata1[i].purchaseDate.getMonth()+"."+assetdata1[i].purchaseDate.getDate());
+								temp.push(assetdata1[i].cost);
+								temp.push(assetdata1[i].projectId);
+								temp.push(assetdata1[i].account);
+								assetdata1[i].devicestate===1?temp.push('正常'):(assetdata1[i].devicestate===2?temp.push('待修'):temp.push('报废'));
+								temp.push(assetdata1[i].user);
+								temp.push(assetdata1[i].ticket);
+								temp.push(assetdata1[i].teacher);
+								temp.push(""+assetdata1[i].time.getFullYear()+"."+assetdata1[i].time.getMonth()+"."+assetdata1[i].time.getDate());
+								assetdata.push(temp);
+							}
+						}
+						for(var i in sthesisdata1){
+							if(sthesisdata1[i].time.getFullYear()===year&&sthesisdata1[i].time.getMonth()===month){
+								var temp = [];
+								temp.push(sthesisdata1[i].title);
+								temp.push(sthesisdata1[i].id);
+								var author = "";
+								for(var k in sthesisdata1[i].authors){
+									author += (sthesisdata1[i].authors[k]+" ");
+								}
+								temp.push(author);
+								temp.push(sthesisdata1[i].apply);
+								var projectIds = "";
+								for(var k in sthesisdata1[i].projectId){
+									projectIds += (sthesisdata1[i].projectId[k]+" ");
+								}
+								temp.push(projectIds);
+								temp.push(sthesisdata1[i].teacher);
+								temp.push(sthesisdata1[i].account);
+								temp.push(sthesisdata1[i].content);
+								temp.push(sthesisdata1[i].cost);
+								temp.push(""+sthesisdata1[i].time.getFullYear()+"."+sthesisdata1[i].time.getMonth()+"."+sthesisdata1[i].time.getDate());
+								sthesisdata.push(temp);
+							}
+						}
+						for(var i in patentdata1){
+							if(patentdata1[i].time.getFullYear()===year&&patentdata1[i].time.getMonth()===month){
+								var temp = [];
+								temp.push(patentdata1[i].name);
+								temp.push(patentdata1[i].id);
+								temp.push(patentdata1[i].applicant);
+								var inventors = "";
+								for(var k in patentdata1[i].inventor){
+									inventors += (patentdata1[i].inventor[k]+" ");
+								}
+								temp.push(inventors);
+								temp.push(patentdata1[i].apply);
+								temp.push(patentdata1[i].projectId);
+								temp.push(patentdata1[i].content);
+								temp.push(patentdata1[i].cost);
+								temp.push(""+patentdata1[i].time.getFullYear()+"."+patentdata1[i].time.getMonth()+"."+patentdata1[i].time.getDate());
+								patentdata.push(temp);
+							}
+						}
+					}
+					//写文件
+					console.log("写文件中");
+					var buffer = xlsx.build([{name:'render',data:renderdata},{name:'assets',data:assetdata},{name:'sthesis',data:sthesisdata},{name:'patent',data:patentdata}]);
+					fs.writeFile('../files/Money.xlsx',buffer,'binary',(err) => {
+						if(err){
+							res.send("0");
+						}else{
+							res.download('../files/Money.xlsx',"moneyXlsx.xlsx");
+						}
+					});
+				});
+			});
+		});
+	});
+});
 //文件上传处理api
 router.post('/api/upload',(req,res) => {
 	var message = '';
 	var form = new formidable.IncomingForm();//创建上传表单
 	form.encoding = 'utf-8';
-	form.uploadDir = './files';
+	form.uploadDir = '../files';
 	form.keepExtensions = true;
 	form.maxFieldsSize = 2 * 1024 * 1024;
 	form.parse(req,function(err,fields,files){
@@ -527,31 +715,38 @@ router.post('/api/sthesisApply',(req,res) => {
 	let cost = req.body.cost;
 	let path = req.body.path;
 	let content = path;
-	models.Sthesis.count((err,count) => {
-		count++;
-		var id = (new Date().getFullYear())+"06"+(Array(5).join('0')+count).slice(-5);
-		var apply = {
-			title : title,
-			id : id,
-			authors : authors,
-			apply : req.session.account,
-			projectId : new Array(),
-			teacher : teacher,
-			account : "",
-			state : 1,
-			content : content,
-			cost : cost,
-			time : new Date()
-		};
-		models.Sthesis.create(apply,(err) => {
-			if(err){
-			  console.log("创建失败");
-			  res.send("0");
-			}else{
-			  console.log("新建小论文"+id);
-			  res.send("1");
-			}
-		});
+	models.Sthesis.findOne({$and:[{'teacher':teacher},{'title':title},{'authors':authors}]},(err,data) => {
+		if(data){
+			console.log("该小论文已经存在");
+      		res.send("0");
+		}else{
+			models.Sthesis.count((err,count) => {
+				count++;
+				var id = (new Date().getFullYear())+"06"+(Array(5).join('0')+count).slice(-5);
+				var apply = {
+					title : title,
+					id : id,
+					authors : authors,
+					apply : req.session.account,
+					projectId : new Array(),
+					teacher : teacher,
+					account : "",
+					state : 1,
+					content : content,
+					cost : cost,
+					time : new Date()
+				};
+				models.Sthesis.create(apply,(err) => {
+					if(err){
+					  console.log("创建失败");
+					  res.send("0");
+					}else{
+					  console.log("新建小论文"+id);
+					  res.send("1");
+					}
+				});
+			});
+		}
 	});	
 });
 //39行 checkSthesisApply 老师审核申请
@@ -577,30 +772,37 @@ router.post('/api/gthesisApply',(req,res) => {
 	let apply = req.session.account;
 	let path = req.body.path;
 	let content = path;
-	models.Gthesis.count((err,count) => {
-		count++;
-		var id = (new Date().getFullYear())+"07"+(Array(5).join('0')+count).slice(-5);
-		var apply = {
-			title : title,
-			id : id,
-			authors : authors,
-			apply : apply,
-			projectId : "",
-			teacher : teacher,
-			editor : editor,
-			state : 1,
-			content : content,
-			time : new Date()
-		};
-		models.Gthesis.create(apply,(err) => {
-			if(err){
-			  console.log("创建失败");
-			  res.send("0");
-			}else{
-			  console.log("新建毕业论文"+id);
-			  res.send("1");
-			}
-		});
+	models.Gthesis.findOne({$and:[{'title':title},{'authors':authors},{'editor':editor},{'teacher':teacher},{'apply':apply}]},(err,data) => {
+		if(data){
+			console.log("该毕业论文论文已经存在");
+      		res.send("0");
+		}else{
+			models.Gthesis.count((err,count) => {
+				count++;
+				var id = (new Date().getFullYear())+"07"+(Array(5).join('0')+count).slice(-5);
+				var apply = {
+					title : title,
+					id : id,
+					authors : authors,
+					apply : apply,
+					projectId : "",
+					teacher : teacher,
+					editor : editor,
+					state : 1,
+					content : content,
+					time : new Date()
+				};
+				models.Gthesis.create(apply,(err) => {
+					if(err){
+					  console.log("创建失败");
+					  res.send("0");
+					}else{
+					  console.log("新建毕业论文"+id);
+					  res.send("1");
+					}
+				});
+			});
+		}
 	});
 });
 //49行 checkGthesisApply 老师审核申请
@@ -633,7 +835,7 @@ router.post('/api/submitGthesisInfos',(req,res) => {
 	});
 });
 //21行 downloadFiles 下载文件
-router.post('/api/downloadFiles',(req,res) => {
+router.get('/api/downloadFiles',(req,res) => {
 	let id = req.body.id;
 	let choice = req.choice;
 	switch(choice){
@@ -702,33 +904,40 @@ router.post('/api/assetApply',(req,res)=>{
   let projectId = req.body.projectId;
   let teacher = req.body.teacher;
   let user = req.session.account;
-  models.Assets.count((err,count) => {
-    count=count+1;
-    var id = (new Date().getFullYear())+"03"+(Array(5).join('0')+count).slice(-5); //id:年份+“03”+“固定资产购买申请数+1”，固定11位
-    var asset = {
-      id :id,
-      deviceId : "",//设备号
-      band : band,//设备名
-      name : name,//设备厂商
-      model : model,//型号
-      purchaseDate : null,//购买时间
-      cost : cost,//价格
-      projectId : projectId,//项目号
-      account : "",//账号
-      devicestate : 1,//设备状态1：正常 2：待修 3：报废
-      user : user,//使用人，就是报账的这个用户
-      ticket : "",//报账票据集合为一个pdf文件后上传
-      state : 1,//申请审批状态
-      teacher : teacher,//负责申购申请审批的老师
-      time : new Date()//该条目生成时间
-    };
-    models.Assets.create(asset,function(err){
-      if(err){
-        res.send("0");
-      }else{
-        res.send("1");
-      }
-    });
+  models.Assets.findOne({$and:[{'band':band},{'name':name},{'model':model},{'cost':cost},{'projectId':projectId},{'teacher':teacher},{'user':user}]},(err,data) => {
+  	if(data){
+  		console.log("该固定资产已存在");
+  		res.send("0");
+  	}else{
+  		models.Assets.count((err,count) => {
+  		  count=count+1;
+  		  var id = (new Date().getFullYear())+"03"+(Array(5).join('0')+count).slice(-5); //id:年份+“03”+“固定资产购买申请数+1”，固定11位
+  		  var asset = {
+  		    id :id,
+  		    deviceId : "",//设备号
+  		    band : band,//设备名
+  		    name : name,//设备厂商
+  		    model : model,//型号
+  		    purchaseDate : null,//购买时间
+  		    cost : cost,//价格
+  		    projectId : projectId,//项目号
+  		    account : "",//账号
+  		    devicestate : 1,//设备状态1：正常 2：待修 3：报废
+  		    user : user,//使用人，就是报账的这个用户
+  		    ticket : "",//报账票据集合为一个pdf文件后上传
+  		    state : 1,//申请审批状态
+  		    teacher : teacher,//负责申购申请审批的老师
+  		    time : new Date()//该条目生成时间
+  		  };
+  		  models.Assets.create(asset,function(err){
+  		    if(err){
+  		      res.send("0");
+  		    }else{
+  		      res.send("1");
+  		    }
+  		  });
+  		});
+  	}
   });
 });
 //老师审核购买申请(固定资产入库)
@@ -762,28 +971,35 @@ router.post('/api/renderApply',(req,res)=>{
   let cost = req.body.cost;
   let projectId = req.body.projectId;
   let apply = req.session.account;
-  models.Render.count((err,count) => {
-    count=count+1;
-    var id = (new Date().getFullYear())+"04"+(Array(5).join('0')+count).slice(-5); //id:年份+“04”+“报账申请数+1”
-    var render = {
-      id : id,
-      kind : kind,
-      description : description,
-      account : "",
-      apply : apply,
-      projectId : projectId,
-      cost : cost,
-      state : 1,
-      ticket : "",//报账票据集合成一个pdf文件后上传
-      time : new Date()
-    }
-    models.Render.create(render,function (err) {
-      if(err){
-        res.send("0");
-      }else {
-        res.send("1");
-      }
-    });
+  models.Render.findOne({$and:[{'kind':kind},{'description':description},{'cost':cost},{'projectId':projectId},{'apply':apply}]},(err,data) => {
+  	if(data){
+  		console.log("此不入库报账纪录已存在");
+  		res.send("0");
+  	}else{
+  		models.Render.count((err,count) => {
+  		  count=count+1;
+  		  var id = (new Date().getFullYear())+"04"+(Array(5).join('0')+count).slice(-5); //id:年份+“04”+“报账申请数+1”
+  		  var render = {
+  		    id : id,
+  		    kind : kind,
+  		    description : description,
+  		    account : "",
+  		    apply : apply,
+  		    projectId : projectId,
+  		    cost : cost,
+  		    state : 1,
+  		    ticket : "",//报账票据集合成一个pdf文件后上传
+  		    time : new Date()
+  		  }
+  		  models.Render.create(render,function (err) {
+  		    if(err){
+  		      res.send("0");
+  		    }else {
+  		      res.send("1");
+  		    }
+  		  });
+  		});
+  	}
   });
 });
 //老师审核报账申请（不入库报账）
@@ -924,32 +1140,39 @@ router.post('/api/patentApply',(req,res) => {
   let apply = req.body.apply;
   let projectId = req.body.projectId;
   let description = req.body.description;
-  models.Patent.count((err,count) => {
-  	count++;
-    let id = (new Date().getFullYear())+"08"+(Array(5).join('0')+count).slice(-5);
-    var patent = {
-      name : name,
-      id : id,
-      applicant : applicant,
-      inventor : inventor,
-      apply : apply,
-      projectId : projectId,
-      state : 1,
-      description : description,
-      applystate : 0,
-      content : null,
-      cost : null,
-      time : new Date()
-    }
-    models.Patent.create(patent,(err) => {
-      if(err){
-        console.log("创建失败"+err);
-        res.send("0");
-      }else{
-        console.log("create patent success");
-        res.send("1");
-      }
-    });
+  models.Patent.findOne({$and:[{'name':name},{'applicant':applicant},{'inventor':inventor},{'projectId':projectId},{'apply':apply},{'description':description}]},(err,data) => {
+  	if(data){
+  		console.log("此专利申请纪录已存在");
+  		res.send("0");
+  	}else{
+  		models.Patent.count((err,count) => {
+  			count++;
+  		  let id = (new Date().getFullYear())+"08"+(Array(5).join('0')+count).slice(-5);
+  		  var patent = {
+  		    name : name,
+  		    id : id,
+  		    applicant : applicant,
+  		    inventor : inventor,
+  		    apply : apply,
+  		    projectId : projectId,
+  		    state : 1,
+  		    description : description,
+  		    applystate : 0,
+  		    content : null,
+  		    cost : null,
+  		    time : new Date()
+  		  }
+  		  models.Patent.create(patent,(err) => {
+  		    if(err){
+  		      console.log("创建失败"+err);
+  		      res.send("0");
+  		    }else{
+  		      console.log("create patent success");
+  		      res.send("1");
+  		    }
+  		  });
+  		});
+  	}
   });
 });
 //上传受理通知书和专利申请号以及费用预算
