@@ -1,32 +1,29 @@
 <template>
-  <div class="mod-apply">
-    <h3 v-if="this.data.userInfo.type === 1">我的申请状态</h3>
-    <h3 v-else>项目申请查看</h3>
-    <div class="apply-table">
-      <el-table :data="applys" border style="width: 100%">
-        <el-table-column prop="account" label="申请人">
+  <div class="mod-gthesise-check">
+    <h3>毕业论文申请审核</h3>
+    <div class="gthesise-table">
+      <el-table :data="gthesises" border style="width: 100%">
+        <el-table-column prop="id" label="论文编号">
         </el-table-column>
-        <el-table-column prop="projectId" label="项目编号">
+        <el-table-column prop="title" label="论文标题">
         </el-table-column>
         <el-table-column prop="teacher" label="负责教师">
         </el-table-column>
         <el-table-column prop="applyState" label="申请状态">
         </el-table-column>
-        <el-table-column prop="time" label="申请时间">
-        </el-table-column>
-        <el-table-column v-if="this.data.userInfo.type != 1" label="操作">
+        <el-table-column label="审核">
           <template scope="applys">
             <el-button
               size="small"
-              @click="handleApply(applys.row,1)">同意</el-button>
+              @click="handleApply(applys.row,2)">同意</el-button>
             <el-button
               size="small"
               type="danger"
-              @click="handleApply(applys.row,2)">拒绝</el-button>
+              @click="handleApply(applys.row,0)">拒绝</el-button>
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination class="page-change" @current-change="pageChange" layout="prev, pager, next" :total="applyLength" :page-size="10">
+      <el-pagination class="page-change" @current-change="pageChange" layout="prev, pager, next" :total="gthesiseLength" :page-size="10">
       </el-pagination>
     </div>
   </div>
@@ -34,41 +31,45 @@
 
 <script>
 import axios from 'axios';
-const applyState = ['待审核','已同意','已拒绝'];
+const applyState = ['已拒绝','待教师审核','待上传最终版','待科研管理审核','审核通过'];
 export default {
   data(){
     return {
-      "applys": this.data.projectApply.slice(0,10),
-      "applyLength": this.data.projectApply.length
-    };
+      title: '',
+      authors: '',
+      teacher: '',
+      editor: '',
+      gthesises: this.data.gthesises.slice(0,10),
+      gthesiseLength: this.data.gthesises.length
+    }
   },
   props: ['data'],
   methods: {
     pageChange(currentPage){
-      this.applys = this.data.projectApply.slice(((currentPage-1)*10),currentPage*10);
-      this.applys.forEach(item => {
+      this.gthesises = this.data.gthesises.slice(((currentPage-1)*10),currentPage*10);
+      this.gthesises.forEach(item => {
         item.applyState = applyState[item.state];
-      })
+      });
     },
     handleApply(obj,state) {
       let data = {
-        account: obj.account,
-        id: obj.projectId,
+        id: obj.id,
+        projectId: obj.projectId,
         state: state
       };
       console.log(data);
-      if(state === 1){
+      if(state === 2){
         this.$confirm('确认同意申请?', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            axios.post('/api/checkJoinProject',data).then((response) => {
+            axios.post('/api/checkGthesisApply',data).then((response) => {
               console.log(response.data);
               if(response.data == 1){
                 location.reload();
               }else{
-                this.$alert('操作失败', '提示', {
+                this.$alert('操作失败l', '提示', {
                   confirmButtonText: '确定',
                   callback: action => {
                     location.reload();
@@ -83,9 +84,9 @@ export default {
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            axios.post('/api/checkJoinProject',data).then((response) => {
+            axios.post('/api/checkGthesisApply',data).then((response) => {
               console.log(response.data);
-              if(response.data == 2){
+              if(response.data == 1){
                 location.reload();
               }else{
                 this.$alert('操作失败', '提示', {
@@ -100,17 +101,17 @@ export default {
       }
     }
   },
-  created(){
-    this.applys.forEach(item => {
-      item.applyState = applyState[item.state];
+  created() {
+    this.gthesises.forEach(item => {
+      item.applyState = (applyState[item.state]);
     });
   }
 }
 </script>
 
 <style lang="less">
-.mod-apply{
-  .apply-table{
+.mod-gthesise-check{
+  .gthesise-table{
     .cell{
       white-space:nowrap;
       overflow:hidden;
@@ -120,12 +121,9 @@ export default {
       float: right;
       margin-top: 20px;
     }
-  }
-  .notice{
-    display: block;
-    margin-bottom: 10px;
-    color: red;
-    font-size: 12px;
+    .el-table__body-wrapper{
+      overflow: hidden;
+    }
   }
 }
 </style>

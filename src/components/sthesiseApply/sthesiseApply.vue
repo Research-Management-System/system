@@ -34,7 +34,7 @@
         </el-table-column>
         <el-table-column prop="teacher" label="负责教师">
         </el-table-column>
-        <el-table-column prop="state" label="申请状态">
+        <el-table-column prop="applyState" label="申请状态">
         </el-table-column>
         <el-table-column label="论文链接">
           <template>
@@ -67,7 +67,7 @@ export default {
     pageChange(currentPage){
       this.sthesises = this.data.sthesises.slice(((currentPage-1)*10),currentPage*10);
       this.sthesises.forEach(item => {
-        item.state = applyState[item.state];
+        item.applyState = applyState[item.state];
       });
     },
     sendApply(){
@@ -84,7 +84,7 @@ export default {
   },
   created() {
     this.sthesises.forEach(item => {
-      item.state = applyState[item.state];
+      item.applyState = applyState[item.state];
     });
   }
 }

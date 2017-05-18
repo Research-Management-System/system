@@ -3,37 +3,81 @@
 const models = require('./db');
 const express = require('express');
 const router = express.Router();
-const formidable = require('formidable');
+// const formidable = require('formidable');
 const fs = require('fs');
+const multiparty = require('multiparty');
+const util = require('util');
+
+router.post('/api/upload', function(req, res) {
+	//生成multiparty对象，并配置上传目标路径
+  var form = new multiparty.Form({uploadDir: '../static/'});
+  //上传完成后处理
+  form.parse(req, function(err, fields, files) {
+    var filesTmp = JSON.stringify(files,null,2);
+  	if(err){
+      console.log('parse error: ' + err);
+    } else {
+      console.log('parse files: ' + filesTmp);
+      var inputFile = files.inputFile[0];
+      var uploadedPath = inputFile.path;
+      var dstPath = '../static/'+ req.session.account + '-'+ inputFile.originalFilename;
+      //重命名为真实文件名
+      fs.rename(uploadedPath, dstPath, function(err) {
+        if(err){
+          console.log('rename error: ' + err);
+        } else {
+          console.log('rename ok');
+					res.send({"filePath":dstPath});
+        }
+      });
+    }
+    // res.writeHead(200, {'content-type': 'text/plain;charset=utf-8'});
+   // 	res.end(util.inspect({fields: fields, files: filesTmp}));
+ 	});
+});
 
 //文件上传处理api
-router.post('/api/upload',(req,res) => {
-	var message = '';
-	var form = new formidable.IncomingForm();//创建上传表单
-	form.encoding = 'utf-8';
-	form.uploadDir = './files';
-	form.keepExtensions = true;
-	form.maxFieldsSize = 2 * 1024 * 1024;
-	form.parse(req,function(err,fields,files){
-		if(err){
-			console.log(err);
-		}
-		var filename = files.resource.name;
-		//对文件名进行处理，防止上传同名文件
-		var nameArray = filename.split('.');
-		var type = nameArray[nameArray.length-1];
-		var name = '';
-		for (var i = 0; i < nameArray.length-1; i++) {
-			name = name + nameArray[i];
-		}
-		var rand = Math.random()*100 + 900;
-		var num = parseInt(rand,10);
-		var avatarName = name + num + '.' + type;
-		var newPath = form.uploadDir + avatarName;
-		fs.renameSync(files.resource.path,newPath);//重命名
-		res.send(newPath);
-	});
-});
+// app.post('/api/upload',(req,res,next) => {
+// 	console.log(req.files);
+	// // 获得文件的临时路径
+  // let tmp_path = req.files.thumbnail.path;
+  // // 指定文件上传后的目录 - 示例为"images"目录。
+  // let target_path = './images/' + req.files.thumbnail.name;
+  // // 移动文件
+  // fs.rename(tmp_path, target_path, function(err) {
+  //   if (err) throw err;
+  //   // 删除临时文件夹文件,
+  //   fs.unlink(tmp_path, function() {
+  //       if (err) throw err;
+  //       res.send('File uploaded to: ' + target_path + ' - ' + req.files.thumbnail.size + ' bytes');
+  //   });
+	// });
+	// var message = '';
+	// var form = new formidable.IncomingForm();//创建上传表单
+	// form.encoding = 'utf-8';
+	// form.uploadDir = './files';
+	// form.keepExtensions = true;
+	// form.maxFieldsSize = 2 * 1024 * 1024;
+	// form.parse(req,function(err,fields,files){
+	// 	if(err){
+	// 		console.log(err);
+	// 	}
+	// 	var filename = files.resource.name;
+	// 	//对文件名进行处理，防止上传同名文件
+	// 	var nameArray = filename.split('.');
+	// 	var type = nameArray[nameArray.length-1];
+	// 	var name = '';
+	// 	for (var i = 0; i < nameArray.length-1; i++) {
+	// 		name = name + nameArray[i];
+	// 	}
+	// 	var rand = Math.random()*100 + 900;
+	// 	var num = parseInt(rand,10);
+	// 	var avatarName = name + num + '.' + type;
+	// 	var newPath = form.uploadDir + avatarName;
+	// 	fs.renameSync(files.resource.path,newPath);//重命名
+	// 	res.send(newPath);
+	// });
+// });
 //查询登录状态
 router.get('/api/isLogin',(req,res) => {
   let account = req.session.account;
@@ -303,7 +347,7 @@ router.post('/api/checkJoinProject',(req,res) => {
       console.log(err);
       res.send("0");
     }else{
-      if(state===1){
+      if(state === 1){
         console.log("同意申请"+account);
         models.Login.update({'account':account},{$addToSet:{'projects':projectId}},(err) => {
           models.Project.update({'id':projectId},{$addToSet:{'students':account}},(err) => {
@@ -316,6 +360,7 @@ router.post('/api/checkJoinProject',(req,res) => {
         });
       }else{
         models.Projectapply.update({state: 1},(err) =>{
+					console.log("同意申请"+account);
           res.send("2");
         });
       }
@@ -579,7 +624,7 @@ router.post('/api/gthesisApply',(req,res) => {
 	models.Gthesis.count((err,count) => {
 		count++;
 		var id = (new Date().getFullYear())+"07"+(Array(5).join('0')+count).slice(-5);
-		var apply = {
+		var data = {
 			title : title,
 			id : id,
 			authors : authors,
@@ -591,7 +636,7 @@ router.post('/api/gthesisApply',(req,res) => {
 			content : content,
 			time : new Date()
 		};
-		models.Gthesis.create(apply,(err) => {
+		models.Gthesis.create(data,(err) => {
 			if(err){
 			  console.log("创建失败");
 			  res.send("0");
@@ -607,6 +652,8 @@ router.post('/api/checkGthesisApply',(req,res) => {
 	let id = req.body.id;
 	let state = req.body.state;
 	let projectId = req.body.projectId;
+	console.log(id);
+	console.log(state);
 	models.Gthesis.update({'id':id},{$set:{'state':state,'projectId':projectId}},(err) => {
 		if(err){
 		  console.log(err);
@@ -632,11 +679,11 @@ router.post('/api/submitGthesisInfos',(req,res) => {
 	});
 });
 //21行 downloadFiles 下载文件
-router.post('/api/downloadFiles',(req,res) => {
-	let id = req.body.id;
-	let choice = req.choice;
-	switch(choice){
-		case 1 :
+router.get('/api/downloadFiles',(req,res) => {
+	let id = req.query.id;
+	let choice = req.query.choice;
+	console.log(choice);
+	if(choice == 1){
 			models.Assets.findOne({'id':id},(err,data) => {
 				if(err){
 					console.log(err);
@@ -645,8 +692,8 @@ router.post('/api/downloadFiles',(req,res) => {
 					res.download(data.ticket,id+".pdf");
 				}
 			});
-			break;
-		case 2 :
+		}
+		else if(choice == 2){
 			models.Render.findOne({'id':id},(err,data) => {
 				if(err){
 					console.log(err);
@@ -655,8 +702,8 @@ router.post('/api/downloadFiles',(req,res) => {
 					res.download(data.ticket,id+".pdf");
 				}
 			});
-			break;
-		case 3 :
+		}
+		else if(choice == 3){
 			models.Patent.findOne({'id':id},(err,data) => {
 				if(err){
 					console.log(err);
@@ -665,18 +712,38 @@ router.post('/api/downloadFiles',(req,res) => {
 					res.download(data.content,data.name+".pdf");
 				}
 			});
-			break;
-		case 4 :
+		}
+		else if(choice == 4){
 			models.Gthesis.findOne({'id':id},(err,data) => {
 				if(err){
 					console.log(err);
 					res.send("0");
 				}else{
-					res.download(data.content,data.title+".pdf");
+					console.log(data.content);
+					res.download('../static/13020031154-timg.jpg',function(err){
+			        if(err)
+			            console.log(err);
+			        else
+			            console.log("download successfully");
+			    });
+					// 实现文件下载
+					//  var fileName = data.content.split('/')[2];
+					//  var stats = fs.statSync(data.content);
+					//  if(stats.isFile()){
+					//   res.set({
+					//    'Content-Type': 'application/octet-stream',
+					//    'Content-Disposition': 'attachment; filename='+fileName,
+					//    'Content-Length': stats.size
+					//   });
+					//   fs.createReadStream(data.content).pipe(res);
+					// 	console.log('download successfully');
+					//  } else {
+					//   console.log('download failed');
+					//  }
 				}
 			});
-			break;
-		case 5 :
+		}
+		else if(choice == 5){
 			models.Sthesis.findOne({'id':id},(err,data) => {
 				if(err){
 					console.log(err);
@@ -685,12 +752,11 @@ router.post('/api/downloadFiles',(req,res) => {
 					res.download(data.content,data.title+".pdf");
 				}
 			});
-			break;
-		default :
+		}
+		else{
 			console.log("choice错误！修改状态失败！");
 			res.send("0");
-			break;
-	}
+		}
 });
 //学生向老师提交购买申请(固定资产入库)
 router.post('/api/assetApply',(req,res)=>{

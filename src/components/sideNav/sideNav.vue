@@ -29,10 +29,10 @@
           </el-submenu>
           <el-submenu index="2">
             <template slot="title"><i class="el-icon-menu"></i>科研成果管理</template>
-            <a href="/#/gthesiseApply"><el-menu-item index="2-1">毕业论文申请审核</el-menu-item></a>
+            <a href="/#/gthesiseCheck"><el-menu-item index="2-1">毕业论文申请审核</el-menu-item></a>
             <a href="/#/sthesiseApply"><el-menu-item index="2-2">小论文申请</el-menu-item></a>
-            <a href="/#/sthesiseApply"><el-menu-item index="2-2">小论文申请审核</el-menu-item></a>
-            <a href="/#/patentApply"><el-menu-item index="2-3">专利申请</el-menu-item></a>
+            <a href="/#/sthesiseCheck"><el-menu-item index="2-3">小论文申请审核</el-menu-item></a>
+            <a href="/#/patentApply"><el-menu-item index="2-4">专利申请</el-menu-item></a>
           </el-submenu>
           <el-submenu index="3">
             <template slot="title"><i class="el-icon-setting"></i>财务管理</template>

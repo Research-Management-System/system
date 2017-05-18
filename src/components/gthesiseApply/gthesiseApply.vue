@@ -17,8 +17,8 @@
           <el-input v-model="editor" auto-complete="off" placeholder="审核教师工号"></el-input>
         </el-form-item>
         <el-form-item label="论文上传">
-          <form action="/api/fileupload" method="post" enctype='multipart/form-data'  onsubmit="return checkTask(this)">
-              <input type="file" id="uploadPdf" />
+          <form action="/api/upload" method="post" id="fileUpload" enctype='multipart/form-data'>
+              <input type="file" name ="inputFile" id="upload" />
           </form>
         </el-form-item>
       </el-form>
@@ -36,11 +36,23 @@
         </el-table-column>
         <el-table-column prop="teacher" label="负责教师">
         </el-table-column>
-        <el-table-column prop="state" label="申请状态">
+        <el-table-column prop="applyState" label="申请状态">
         </el-table-column>
+        <!-- 状态为2才能上传最终版 -->
+        <el-table-column label="上传最终版本">
+          <template scope="gthesise">
+            <el-button
+              size="small"
+              :disabled="gthesise.row.state != 2"
+              @click="downloadFile(gthesise.row.id,4)">上传</el-button>
+          </template>
+        </el-table-column>
+        <!-- 上传过的可被下载 -->
         <el-table-column label="论文链接">
-          <template>
-            下载
+          <template scope="gthesise">
+            <el-button
+              size="small"
+              @click="downloadFile(gthesise.row.id,4)">下载</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -52,7 +64,7 @@
 
 <script>
 import axios from 'axios';
-const applyState = ['被拒绝','待教师审核','待财务管理审核','待科研管理审核','审核通过'];
+const applyState = ['已拒绝','待教师审核','待上传最终版','待科研管理审核','审核通过'];
 export default {
   data(){
     return {
@@ -62,7 +74,7 @@ export default {
       editor: '',
       gthesiseApply: false,
       gthesises: this.data.gthesises.slice(0,10),
-      gthesiseLength: this.data.gthesises.length,
+      gthesiseLength: this.data.gthesises.length
     }
   },
   props: ['data'],
@@ -70,7 +82,7 @@ export default {
     pageChange(currentPage){
       this.gthesises = this.data.gthesises.slice(((currentPage-1)*10),currentPage*10);
       this.gthesises.forEach(item => {
-        item.state = applyState[item.state];
+        item.applyState = applyState[item.state];
       });
     },
     sendApply(){
@@ -80,25 +92,42 @@ export default {
         teacher: this.teacher,
         editor: this.editor
       };
-      axios.post('/api/gthesisApply',data).then((response) => {
-        console.log(response.data);
-        if(response.data === 1){
-          console,log("hhh");
-          location.reload();
-        }else{
-          this.$alert('操作失败', '提示', {
-            confirmButtonText: '确定',
-            callback: action => {
-              location.reload();
-            }
-          });
-        }
+      let file = document.getElementById("upload").files[0];
+      let formdata = new FormData();
+      formdata.append('inputFile',file);
+      formdata.append('type','1');//type1毕业论文
+      axios({
+          url:'/api/upload',
+          method:'post',
+          data:formdata,
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+      }).then((res)=>{
+        data.path = res.data.filePath;
+        axios.post('/api/gthesisApply',data).then((response) => {
+          console.log(response.data);
+          if(response.data === 1){
+            console.log("申请成功");
+            location.reload();
+          }else{
+            this.$alert('操作失败', '提示', {
+              confirmButtonText: '确定',
+              callback: action => {
+                location.reload();
+              }
+            });
+          }
+        });
       });
+    },
+    downloadFile(id,choice){
+      let url = '/api/downloadFiles?id=' + id +'&choice=' + choice;
+      console.log(url);
+      axios.get(url);
     }
   },
   created() {
     this.gthesises.forEach(item => {
-      item.state = applyState[item.state];
+      item.applyState = (applyState[item.state]);
     });
   }
 }
