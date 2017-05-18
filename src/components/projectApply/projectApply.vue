@@ -18,10 +18,12 @@
           <template scope="applys">
             <el-button
               size="small"
+              :disabled="applys.row.state != 0"
               @click="handleApply(applys.row,1)">同意</el-button>
             <el-button
               size="small"
               type="danger"
+              :disabled="applys.row.state != 0"
               @click="handleApply(applys.row,2)">拒绝</el-button>
           </template>
         </el-table-column>

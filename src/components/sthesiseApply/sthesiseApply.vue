@@ -11,13 +11,15 @@
           <el-input v-model="authors" auto-complete="off" placeholder="论文作者"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-input v-model="teacher" auto-complete="off" placeholder="指导教师工号"></el-input>
+          <el-input v-model="teacher" auto-complete="off" placeholder="审核教师工号"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-input v-model="editor" auto-complete="off" placeholder="审核教师工号"></el-input>
+          <el-input v-model="cost" auto-complete="off" placeholder="Money"></el-input>
         </el-form-item>
         <el-form-item label="论文上传">
-          <input type="file" id="uploadPdf" />
+          <form action="/api/upload" method="post" id="fileUpload" enctype='multipart/form-data'>
+              <input type="file" name ="inputFile" id="upload" />
+          </form>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -36,9 +38,28 @@
         </el-table-column>
         <el-table-column prop="applyState" label="申请状态">
         </el-table-column>
+        <!-- 状态为2才能上传最终版 -->
+        <el-table-column label="上传最终版本">
+          <template scope="sthesise">
+            <form action="/api/upload" method="post" id="finalUpload" enctype='multipart/form-data'>
+                <input type="file" name ="inputFile" id="uploadFinalFile" />
+            </form>
+            <el-button
+              size="small"
+              :disabled="sthesise.row.state != 3"
+              @click="inputClick">选择文件</el-button>
+            <el-button
+              size="small"
+              :disabled="sthesise.row.state != 3"
+              @click="uploadFinalFile(sthesise.row)">上传</el-button>
+          </template>
+        </el-table-column>
+        <!-- 上传过的可被下载 -->
         <el-table-column label="论文链接">
-          <template>
-            下载
+          <template scope="sthesise">
+            <el-button size="small">
+              <a :href="'/api/downloadFiles?id=' + sthesise.row.id +'&choice=5'">下载</a>
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -49,14 +70,15 @@
 </template>
 
 <script>
-const applyState = ['待教师审核','待管理审核','审核通过'];
+import axios from 'axios';
+const applyState = ['已拒绝','待教师审核','待财物管理员分配账号','待上传最终pdf','待科研管理员审核','带财务管理员审核','审核通过'];
 export default {
   data(){
     return {
       title: '',
       authors: '',
       teacher: '',
-      editor: '',
+      cost: '',
       sthesiseApply: false,
       sthesises: this.data.sthesises.slice(0,10),
       sthesiseLength: this.data.sthesises.length
@@ -75,16 +97,86 @@ export default {
         title: this.title,
         authors: this.authors,
         teacher: this.teacher,
-        editor: this.editor
+        cost: this.cost
       };
-      let file = document.getElementById('uploadPdf').value;
+      let file = document.getElementById("upload").files[0];
+      let formdata = new FormData();
+      formdata.append('inputFile',file);
+      formdata.append('type','2');//type2小论文
+      axios({
+          url:'/api/upload',
+          method:'post',
+          data:formdata,
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+      }).then((res)=>{
+        data.path = res.data.filePath;
+        axios.post('/api/sthesisApply',data).then((response) => {
+          console.log(response.data);
+          if(response.data === 1){
+            console.log("申请成功");
+            location.reload();
+          }else{
+            this.$alert('操作失败', '提示', {
+              confirmButtonText: '确定',
+              callback: action => {
+                location.reload();
+              }
+            });
+          }
+        });
+      });
+    },
+    downloadFile(id,choice){
+      let url = '/api/downloadFiles?id=' + id +'&choice=' + choice;
+      console.log(url);
+      axios.get(url);
+    },
+    inputClick(){
+      let fileDom = document.getElementById("uploadFinalFile");
+      fileDom.click();
+    },
+    uploadFinalFile(obj){
+      let data = {
+        id: obj.id
+      };
       console.log(data);
-      console.log(file);
+      let fileDom = document.getElementById("uploadFinalFile");
+      let file = fileDom.files[0];
+      if(file){
+        let formdata = new FormData();
+        formdata.append('inputFile',file);
+        formdata.append('type','2');//type2小论文
+        axios({
+            url:'/api/upload',
+            method:'post',
+            data:formdata,
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+        }).then((res)=>{
+          data.path = res.data.filePath;
+          axios.post('/api/submitSthesisInfos',data).then((response) => {
+            console.log(response.data);
+            if(response.data === 1){
+              location.reload();
+            }else{
+              this.$alert('操作失败', '提示', {
+                confirmButtonText: '确定',
+                callback: action => {
+                  location.reload();
+                }
+              });
+            }
+          });
+        });
+      }else{
+        this.$alert('请先选择文件', '提示', {
+          confirmButtonText: '确定'
+        });
+      }
     }
   },
   created() {
     this.sthesises.forEach(item => {
-      item.applyState = applyState[item.state];
+      item.applyState = (applyState[item.state]);
     });
   }
 }
@@ -109,5 +201,12 @@ export default {
       overflow: hidden;
     }
   }
+  a{
+    text-decoration: none;
+    color: #000;
+  }
+}
+#finalUpload{
+  display: none;
 }
 </style>

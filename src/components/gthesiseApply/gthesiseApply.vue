@@ -41,18 +41,25 @@
         <!-- 状态为2才能上传最终版 -->
         <el-table-column label="上传最终版本">
           <template scope="gthesise">
+            <form action="/api/upload" method="post" id="finalUpload" enctype='multipart/form-data'>
+                <input type="file" name ="inputFile" id="uploadFinalFile" />
+            </form>
             <el-button
               size="small"
               :disabled="gthesise.row.state != 2"
-              @click="downloadFile(gthesise.row.id,4)">上传</el-button>
+              @click="inputClick">选择文件</el-button>
+            <el-button
+              size="small"
+              :disabled="gthesise.row.state != 2"
+              @click="uploadFinalFile(gthesise.row)">上传</el-button>
           </template>
         </el-table-column>
         <!-- 上传过的可被下载 -->
         <el-table-column label="论文链接">
           <template scope="gthesise">
-            <el-button
-              size="small"
-              @click="downloadFile(gthesise.row.id,4)">下载</el-button>
+            <el-button size="small">
+              <a :href="'/api/downloadFiles?id=' + gthesise.row.id +'&choice=4'">下载</a>
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -64,7 +71,7 @@
 
 <script>
 import axios from 'axios';
-const applyState = ['已拒绝','待教师审核','待上传最终版','待科研管理审核','审核通过'];
+const applyState = ['已拒绝','待教师审核','待上传最终版','待科研管理审核','xx后端设计没有4状态','审核通过'];
 export default {
   data(){
     return {
@@ -123,6 +130,49 @@ export default {
       let url = '/api/downloadFiles?id=' + id +'&choice=' + choice;
       console.log(url);
       axios.get(url);
+    },
+    inputClick(){
+      let fileDom = document.getElementById("uploadFinalFile");
+      fileDom.click();
+    },
+    uploadFinalFile(obj){
+      let data = {
+        id: obj.id,
+        state: 3
+      };
+      console.log(data);
+      let fileDom = document.getElementById("uploadFinalFile");
+      let file = fileDom.files[0];
+      if(file){
+        let formdata = new FormData();
+        formdata.append('inputFile',file);
+        formdata.append('type','1');//type1毕业论文
+        axios({
+            url:'/api/upload',
+            method:'post',
+            data:formdata,
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+        }).then((res)=>{
+          data.path = res.data.filePath;
+          axios.post('/api/submitGthesisInfos',data).then((response) => {
+            console.log(response.data);
+            if(response.data === 1){
+              location.reload();
+            }else{
+              this.$alert('操作失败', '提示', {
+                confirmButtonText: '确定',
+                callback: action => {
+                  location.reload();
+                }
+              });
+            }
+          });
+        });
+      }else{
+        this.$alert('请先选择文件', '提示', {
+          confirmButtonText: '确定'
+        });
+      }
     }
   },
   created() {
@@ -152,5 +202,12 @@ export default {
       overflow: hidden;
     }
   }
+  a{
+    text-decoration: none;
+    color: #000;
+  }
+}
+#finalUpload{
+  display: none;
 }
 </style>

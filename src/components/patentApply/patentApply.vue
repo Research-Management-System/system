@@ -8,13 +8,13 @@
           <el-input v-model="name" auto-complete="off" placeholder="专利名称"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-input v-model="authors" auto-complete="off" placeholder="发明人"></el-input>
+          <el-input v-model="inventor" auto-complete="off" placeholder="发明人,多个发明人请用顿号分隔"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-input v-model="applicant" auto-complete="off" placeholder="applicant"></el-input>
         </el-form-item>
         <el-form-item>
           <el-input v-model="projectId" auto-complete="off" placeholder="项目id"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-input v-model="applystate" auto-complete="off" placeholder="申请状态"></el-input>
         </el-form-item>
         <el-form-item>
           <el-input type="textarea" v-model="description" auto-complete="off" placeholder="专利描述"></el-input>
@@ -25,20 +25,22 @@
         <el-button type="primary" @click="sendApply">确 定</el-button>
       </div>
     </el-dialog>
-    <h3 v-if="this.data.userInfo.type ===1">我的申请</h3>
+    <h3>我的申请</h3>
     <div class="patent-table">
       <el-table :data="patents" border style="width: 100%">
-        <el-table-column prop="id" label="专利编号">
+        <el-table-column prop="projectId" label="专利编号">
         </el-table-column>
         <el-table-column prop="name" label="专利名称">
         </el-table-column>
         <el-table-column prop="inventor" label="发明人">
         </el-table-column>
-        <el-table-column prop="state" label="申请状态">
+        <el-table-column prop="applyState" label="申请状态">
         </el-table-column>
         <el-table-column label="操作">
-          <template>
-            下载
+          <template scope="applys">
+            <el-button size="small">
+              查看并操作
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -49,14 +51,16 @@
 </template>
 
 <script>
-const applyState = ['待教师审核','待管理审核','审核通过'];
+import axios from 'axios';
+const applyState = ['已拒绝','待上传受理通知书','待财务管理员审核','待上传证书及票据','待科研管理员审核','待财务管理员审核','审核通过'];
 export default {
   data(){
     return {
       name: '',
-      authors: '',
+      inventor: '',
       projectId: '',
       description: '',
+      applicant: '',
       patentApply: false,
       patents: this.data.patents.slice(0,10),
       patentLength: this.data.patents.length
@@ -67,22 +71,36 @@ export default {
     pageChange(currentPage){
       this.patents = this.data.patents.slice(((currentPage-1)*10),currentPage*10);
       this.patents.forEach(item => {
-        item.state = applyState[item.state];
+        item.applyState = applyState[item.state];
       });
     },
     sendApply(){
       let data = {
         name: this.name,
-        authors: this.authors,
+        inventor: this.inventor,
         projectId: this.projectId,
+        applicant: this.applicant,
         description: this.description
       };
       console.log(data);
+      axios.post('/api/patentApply',data).then((response) => {
+        console.log(response.data);
+        if(response.data === 1){
+          location.reload();
+        }else{
+          this.$alert('操作失败', '提示', {
+            confirmButtonText: '确定',
+            callback: action => {
+              location.reload();
+            }
+          });
+        }
+      });
     }
   },
   created() {
     this.patents.forEach(item => {
-      item.state = applyState[item.state];
+      item.applyState = applyState[item.state];
     });
   }
 }

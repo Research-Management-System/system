@@ -15,10 +15,12 @@
           <template scope="applys">
             <el-button
               size="small"
+              :disabled="applys.row.state != 2 && applys.row.state != 3"
               @click="handleApply(applys.row,2)">同意</el-button>
             <el-button
               size="small"
               type="danger"
+              :disabled="applys.row.state != 2 && applys.row.state != 3"
               @click="handleApply(applys.row,0)">拒绝</el-button>
           </template>
         </el-table-column>
@@ -31,7 +33,7 @@
 
 <script>
 import axios from 'axios';
-const applyState = ['已拒绝','待教师审核','待上传最终版','待科研管理审核','审核通过'];
+const applyState = ['已拒绝','待教师审核','待上传最终版','待科研管理审核','','审核通过'];
 export default {
   data(){
     return {
@@ -64,12 +66,15 @@ export default {
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
+            if(this.data.userInfo.type == 3){
+              data.state = 5;
+            }
             axios.post('/api/checkGthesisApply',data).then((response) => {
               console.log(response.data);
               if(response.data == 1){
                 location.reload();
               }else{
-                this.$alert('操作失败l', '提示', {
+                this.$alert('操作失败', '提示', {
                   confirmButtonText: '确定',
                   callback: action => {
                     location.reload();

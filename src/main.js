@@ -15,6 +15,7 @@ import sthesiseCheck from './components/sthesiseCheck/sthesiseCheck.vue';
 import patentApply from './components/patentApply/patentApply.vue';
 import assetApply from './components/assetApply/assetApply.vue';
 import renderApply from './components/renderApply/renderApply.vue';
+import assetCheck from './components/assetCheck/assetCheck.vue';
 
 Vue.use(ElementUI);
 Vue.use(VueRouter);
@@ -31,7 +32,8 @@ let routes = [
   {path: '/sthesiseCheck', component: sthesiseCheck},
   {path: '/patentApply', component: patentApply},
   {path: '/assetApply', component: assetApply},
-  {path: '/renderApply', component: renderApply}
+  {path: '/renderApply', component: renderApply},
+  {path: '/assetCheck', component: assetCheck}
 ];
 
 let router = new VueRouter({

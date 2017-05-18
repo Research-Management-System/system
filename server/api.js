@@ -7,7 +7,7 @@ const router = express.Router();
 const fs = require('fs');
 const multiparty = require('multiparty');
 const util = require('util');
-
+//上传接口down
 router.post('/api/upload', function(req, res) {
 	//生成multiparty对象，并配置上传目标路径
   var form = new multiparty.Form({uploadDir: '../static/'});
@@ -148,12 +148,12 @@ router.get('/api/isLogin',(req,res) => {
     res.send(account);
   }
 });
-//注销接口
+//注销接口down
 router.get('/api/logoff',(req,res) => {
   req.session.account = null;
   res.send("log off success!");
 });
-// 登录接口
+// 登录接口down
 router.post('/api/login',(req,res) => {
     // 通过模型去查找数据库
     let account = req.body.account;
@@ -229,7 +229,7 @@ router.post('/api/login',(req,res) => {
         }
     });
 });
-//修改密码
+//修改密码down
 router.post('/api/changePassword',(req,res) => {
   let account = req.body.account;
   let password = req.body.newPassword;
@@ -245,7 +245,7 @@ router.post('/api/changePassword',(req,res) => {
     }
   });
 });
-//重置密码
+//重置密码down
 router.post('/api/resetPassword',(req,res) => {
 	let account = req.body.account;
 	models.Login.update({'account':account},{$set:{'password':account}},function(err){
@@ -259,7 +259,7 @@ router.post('/api/resetPassword',(req,res) => {
 	  }
 	});
 });
-//用户注册
+//用户注册down
 router.post('/api/signIn',(req,res) => {
   let account = req.body.account;
   let password = req.body.password;
@@ -307,7 +307,7 @@ router.post('/api/signIn',(req,res) => {
 		}
 	});
 });
-//修改用户信息
+//修改用户信息down
 router.post('/api/changeUserinfo',(req,res) => {
   let account = req.body.account;
   let name = req.body.name;
@@ -337,7 +337,7 @@ router.post('/api/activeUser',(req,res) => {
     }
   });
 });
-//审核项目加入申请
+//审核项目加入申请down
 router.post('/api/checkJoinProject',(req,res) => {
   let account = req.body.account;
   let projectId = req.body.id;
@@ -352,22 +352,22 @@ router.post('/api/checkJoinProject',(req,res) => {
         models.Login.update({'account':account},{$addToSet:{'projects':projectId}},(err) => {
           models.Project.update({'id':projectId},{$addToSet:{'students':account}},(err) => {
             models.ProjectG.update({'projects':projectId},{$addToSet:{'students':account}},(err) => {
-              models.Projectapply.update({state: 1},(err) =>{
+              models.Projectapply.update({state: state},(err) =>{
                 res.send("1");
               });
             });
           });
         });
       }else{
-        models.Projectapply.update({state: 1},(err) =>{
-					console.log("同意申请"+account);
+        models.Projectapply.update({state: state},(err) =>{
+					console.log("拒绝申请"+account);
           res.send("2");
         });
       }
     }
   });
 });
-//学生加入项目申请
+//学生加入项目申请down
 router.post('/api/joinProject',(req,res) => {
   let account = req.body.account;
   let projectId = req.body.id;
@@ -404,7 +404,7 @@ router.post('/api/joinProject',(req,res) => {
     }
   });
 });
-//新建项目组
+//新建项目组down
 router.post('/api/createProjectGroup',(req,res) => {
   let name = req.body.name;
   let caption = req.body.caption;
@@ -431,7 +431,7 @@ router.post('/api/createProjectGroup',(req,res) => {
     });
   });
 });
-//新建项目
+//新建项目down
 router.post('/api/createProject',(req,res) => {
   let name = req.body.name;
   let teacher = req.body.teacher;
@@ -563,7 +563,7 @@ router.post('/api/submitRenderInfos',(req,res) => {
 		}
 	});
 });
-//38行 sthesisApply 提交小论文申请
+//38行 sthesisApply 提交小论文申请down
 router.post('/api/sthesisApply',(req,res) => {
 	let teacher = req.body.teacher;
 	let title = req.body.title;
@@ -598,7 +598,7 @@ router.post('/api/sthesisApply',(req,res) => {
 		});
 	});
 });
-//39行 checkSthesisApply 老师审核申请
+//39行 checkSthesisApply 老师审核申请down
 router.post('/api/checkSthesisApply',(req,res) => {
 	let id = req.body.id;
 	let state = req.body.state;
@@ -612,7 +612,7 @@ router.post('/api/checkSthesisApply',(req,res) => {
 		}
 	});
 });
-//48行 gthesisApply 提交毕业论文申请
+//48行 gthesisApply 提交毕业论文申请down
 router.post('/api/gthesisApply',(req,res) => {
 	let title = req.body.title;
 	let authors = req.body.authors;
@@ -647,13 +647,11 @@ router.post('/api/gthesisApply',(req,res) => {
 		});
 	});
 });
-//49行 checkGthesisApply 老师审核申请
+//49行 checkGthesisApply 老师审核申请down
 router.post('/api/checkGthesisApply',(req,res) => {
 	let id = req.body.id;
 	let state = req.body.state;
 	let projectId = req.body.projectId;
-	console.log(id);
-	console.log(state);
 	models.Gthesis.update({'id':id},{$set:{'state':state,'projectId':projectId}},(err) => {
 		if(err){
 		  console.log(err);
@@ -663,12 +661,13 @@ router.post('/api/checkGthesisApply',(req,res) => {
 		}
 	});
 });
-//50行 submitGthesisInfos 提交毕业论文最终pdf版
+//50行 submitGthesisInfos 提交毕业论文最终pdf版down
 router.post('/api/submitGthesisInfos',(req,res) => {
 	let id = req.body.id;
 	let state = req.body.state;
 	let path = req.body.path;
 	let content = path;
+	console.log(content);
 	models.Gthesis.update({'id':id},{$set:{'state':state,'content':content}},(err) => {
 		if(err){
 		  console.log(err);
@@ -678,7 +677,7 @@ router.post('/api/submitGthesisInfos',(req,res) => {
 		}
 	});
 });
-//21行 downloadFiles 下载文件
+//21行 downloadFiles 下载文件down
 router.get('/api/downloadFiles',(req,res) => {
 	let id = req.query.id;
 	let choice = req.query.choice;
@@ -720,26 +719,12 @@ router.get('/api/downloadFiles',(req,res) => {
 					res.send("0");
 				}else{
 					console.log(data.content);
-					res.download('../static/13020031154-timg.jpg',function(err){
+					res.download(data.content,function(err){
 			        if(err)
 			            console.log(err);
 			        else
 			            console.log("download successfully");
 			    });
-					// 实现文件下载
-					//  var fileName = data.content.split('/')[2];
-					//  var stats = fs.statSync(data.content);
-					//  if(stats.isFile()){
-					//   res.set({
-					//    'Content-Type': 'application/octet-stream',
-					//    'Content-Disposition': 'attachment; filename='+fileName,
-					//    'Content-Length': stats.size
-					//   });
-					//   fs.createReadStream(data.content).pipe(res);
-					// 	console.log('download successfully');
-					//  } else {
-					//   console.log('download failed');
-					//  }
 				}
 			});
 		}
@@ -749,7 +734,13 @@ router.get('/api/downloadFiles',(req,res) => {
 					console.log(err);
 					res.send("0");
 				}else{
-					res.download(data.content,data.title+".pdf");
+					console.log(data.content);
+					res.download(data.content,function(err){
+			        if(err)
+			            console.log(err);
+			        else
+			            console.log("download successfully");
+			    });
 				}
 			});
 		}
@@ -924,8 +915,7 @@ router.post('/api/checkAccount',(req,res) => {
 router.post('/api/submitSthesisInfos',(req,res) => {
   let id = req.body.id;
   let path = req.body.path;
-  let ticketpath = path;
-  models.Assets.update({ 'id':id },{$set:{'ticket' : ticketpath}},(err) => {
+  models.Sthesis.update({ 'id':id },{$set:{'content' : path,'state':4}},(err) => {
 	if(err){
 	  	console.log(err);
 	    res.send("0");
@@ -986,7 +976,7 @@ router.post('/api/patentApply',(req,res) => {
   let name = req.body.name;
   let applicant = req.body.applicant;
   let inventor = req.body.inventor;
-  let apply = req.body.apply;
+  let apply = req.session.account;//到底是啥
   let projectId = req.body.projectId;
   let description = req.body.description;
   models.Patent.count((err,count) => {
