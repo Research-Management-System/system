@@ -9,9 +9,9 @@
         <sideNav :userInfo="data.userInfo"></sideNav>
       </el-col>
       <el-col class="content" :span="18">
-        <router-link to="/"></router-link>
+        <!-- <router-link to="/"></router-link>
         <router-link to="/apply"></router-link>
-        <router-link to="/checkJoin"></router-link>
+        <router-link to="/checkJoin"></router-link> -->
         <router-view :data="data"></router-view>
       </el-col>
     </el-row>

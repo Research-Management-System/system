@@ -9,6 +9,13 @@ import projectApply from './components/projectApply/projectApply.vue';
 import projectJoin from './components/projectJoin/projectJoin.vue';
 import checkJoin from './components/checkJoin/checkJoin.vue';
 import gthesiseApply from './components/gthesiseApply/gthesiseApply.vue';
+import gthesiseCheck from './components/gthesiseCheck/gthesiseCheck.vue';
+import sthesiseApply from './components/sthesiseApply/sthesiseApply.vue';
+import sthesiseCheck from './components/sthesiseCheck/sthesiseCheck.vue';
+import patentApply from './components/patentApply/patentApply.vue';
+import assetApply from './components/assetApply/assetApply.vue';
+import renderApply from './components/renderApply/renderApply.vue';
+import assetCheck from './components/assetCheck/assetCheck.vue';
 
 Vue.use(ElementUI);
 Vue.use(VueRouter);
@@ -20,6 +27,13 @@ let routes = [
   {path: '/projectApply', component: projectApply},
   {path: '/checkJoin', component: checkJoin},
   {path: '/gthesiseApply', component: gthesiseApply},
+  {path: '/sthesiseApply', component: sthesiseApply},
+  {path: '/gthesiseCheck', component: gthesiseCheck},
+  {path: '/sthesiseCheck', component: sthesiseCheck},
+  {path: '/patentApply', component: patentApply},
+  {path: '/assetApply', component: assetApply},
+  {path: '/renderApply', component: renderApply},
+  {path: '/assetCheck', component: assetCheck}
 ];
 
 let router = new VueRouter({

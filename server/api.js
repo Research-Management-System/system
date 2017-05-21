@@ -3,9 +3,39 @@
 const models = require('./db');
 const express = require('express');
 const router = express.Router();
-const formidable = require('formidable');
+// const formidable = require('formidable');
 const fs = require('fs');
 const xlsx = require('node-xlsx');
+const multiparty = require('multiparty');
+const util = require('util');
+//上传接口down
+router.post('/api/upload', function(req, res) {
+	//生成multiparty对象，并配置上传目标路径
+  var form = new multiparty.Form({uploadDir: '../static/'});
+  //上传完成后处理
+  form.parse(req, function(err, fields, files) {
+    var filesTmp = JSON.stringify(files,null,2);
+  	if(err){
+      console.log('parse error: ' + err);
+    } else {
+      console.log('parse files: ' + filesTmp);
+      var inputFile = files.inputFile[0];
+      var uploadedPath = inputFile.path;
+      var dstPath = '../static/'+ req.session.account + '-'+ inputFile.originalFilename;
+      //重命名为真实文件名
+      fs.rename(uploadedPath, dstPath, function(err) {
+        if(err){
+          console.log('rename error: ' + err);
+        } else {
+          console.log('rename ok');
+					res.send({"filePath":dstPath});
+        }
+      });
+    }
+    // res.writeHead(200, {'content-type': 'text/plain;charset=utf-8'});
+   // 	res.end(util.inspect({fields: fields, files: filesTmp}));
+ 	});
+});
 
 //下载报账表getRenderXlsx
 router.get('/api/getRenderXlsx',(req,res) => {
@@ -293,7 +323,7 @@ router.get('/api/isLogin',(req,res) => {
     res.send(account);
   }
 });
-//注销接口
+//注销接口down
 router.get('/api/logoff',(req,res) => {
 	if(req.session.account !== null){
 		req.session.account = null;
@@ -302,7 +332,7 @@ router.get('/api/logoff',(req,res) => {
 		res.send("0");
 	} 
 });
-// 登录接口
+// 登录接口down
 router.post('/api/login',(req,res) => {
     // 通过模型去查找数据库
     let account = req.body.account;
@@ -377,7 +407,7 @@ router.post('/api/login',(req,res) => {
         }
     });
 });
-//修改密码
+//修改密码down
 router.post('/api/changePassword',(req,res) => {
   let account = req.body.account;
   let password = req.body.newPassword;
@@ -401,7 +431,7 @@ router.post('/api/changePassword',(req,res) => {
   	}
   });
 });
-//重置密码
+//重置密码down
 router.post('/api/resetPassword',(req,res) => {
 	let account = req.body.account;
 	models.Login.findOne({'account':account},(err,data) => {
@@ -422,7 +452,7 @@ router.post('/api/resetPassword',(req,res) => {
 	});
 	
 });
-//用户注册
+//用户注册down
 router.post('/api/signIn',(req,res) => {
   let account = req.body.account;
   let password = req.body.password;
@@ -470,7 +500,7 @@ router.post('/api/signIn',(req,res) => {
 		}
 	});
 });
-//修改用户信息
+//修改用户信息down
 router.post('/api/changeUserinfo',(req,res) => {
   let account = req.body.account;
   let name = req.body.name;
@@ -504,7 +534,7 @@ router.post('/api/activeUser',(req,res) => {
   	}
   }); 
 });
-//审核项目加入申请
+//审核项目加入申请down
 router.post('/api/checkJoinProject',(req,res) => {
   let account = req.body.account;
   let projectId = req.body.id;
@@ -528,7 +558,7 @@ router.post('/api/checkJoinProject',(req,res) => {
     }
   });
 });
-//学生加入项目申请
+//学生加入项目申请down
 router.post('/api/joinProject',(req,res) => {
   let account = req.body.account;
   let projectId = req.body.id;
@@ -565,7 +595,7 @@ router.post('/api/joinProject',(req,res) => {
     }
   });
 });
-//新建项目组
+//新建项目组down
 router.post('/api/createProjectGroup',(req,res) => {
   let name = req.body.name;
   let caption = req.body.caption;
@@ -592,7 +622,7 @@ router.post('/api/createProjectGroup',(req,res) => {
     });
   });
 });
-//新建项目
+//新建项目down
 router.post('/api/createProject',(req,res) => {
   let name = req.body.name;
   let teacher = req.body.teacher;
@@ -627,11 +657,10 @@ router.post('/api/createProject',(req,res) => {
     }
   });
 });
-
 //固定资产管理---------------------------------------------------------
-//20行 submitAssetInfos 
+//20行 submitAssetInfos
 router.post('/api/submitAssetInfos',(req,res) => {
-	let deviceId = req.body.deviceId;	
+	let deviceId = req.body.deviceId;
 	let oldId = req.body.oldId;
 	let newId = req.body.newId;
 	let purchaseDate = req.body.purchaseDate;
@@ -646,7 +675,7 @@ router.post('/api/submitAssetInfos',(req,res) => {
 		}
 	});
 });
-//22行 checkAsset 固定资产管理员最终审核 
+//22行 checkAsset 固定资产管理员最终审核
 router.post('/api/checkAsset',(req,res) => {
 	let id = req.body.id;
 	let state = req.body.state;
@@ -659,7 +688,7 @@ router.post('/api/checkAsset',(req,res) => {
 		}
 	});
 });
-//23行 checkMoney 财务管理员最终审核 
+//23行 checkMoney 财务管理员最终审核
 router.post('/api/checkMoney',(req,res) => {
 	let id = req.body.id;
 	let state = req.body.state;
@@ -725,7 +754,7 @@ router.post('/api/submitRenderInfos',(req,res) => {
 		}
 	});
 });
-//38行 sthesisApply 提交小论文申请
+//38行 sthesisApply 提交小论文申请down
 router.post('/api/sthesisApply',(req,res) => {
 	let teacher = req.body.teacher;
 	let title = req.body.title;
@@ -767,7 +796,7 @@ router.post('/api/sthesisApply',(req,res) => {
 		}
 	});	
 });
-//39行 checkSthesisApply 老师审核申请
+//39行 checkSthesisApply 老师审核申请down
 router.post('/api/checkSthesisApply',(req,res) => {
 	let id = req.body.id;
 	let state = req.body.state;
@@ -781,7 +810,7 @@ router.post('/api/checkSthesisApply',(req,res) => {
 		}
 	});
 });
-//48行 gthesisApply 提交毕业论文申请
+//48行 gthesisApply 提交毕业论文申请down
 router.post('/api/gthesisApply',(req,res) => {
 	let title = req.body.title;
 	let authors = req.body.authors;
@@ -824,7 +853,7 @@ router.post('/api/gthesisApply',(req,res) => {
 		}
 	});
 });
-//49行 checkGthesisApply 老师审核申请
+//49行 checkGthesisApply 老师审核申请down
 router.post('/api/checkGthesisApply',(req,res) => {
 	let id = req.body.id;
 	let state = req.body.state;
@@ -838,7 +867,7 @@ router.post('/api/checkGthesisApply',(req,res) => {
 		}
 	});
 });
-//50行 submitGthesisInfos 提交毕业论文最终pdf版
+//50行 submitGthesisInfos 提交毕业论文最终pdf版down
 router.post('/api/submitGthesisInfos',(req,res) => {
 	let id = req.body.id;
 	let state = req.body.state;
@@ -858,12 +887,12 @@ router.post('/api/submitGthesisInfos',(req,res) => {
 		}
 	});
 });
-//21行 downloadFiles 下载文件
+//21行 downloadFiles 下载文件down
 router.get('/api/downloadFiles',(req,res) => {
-	let id = req.body.id;
-	let choice = req.choice;
-	switch(choice){
-		case 1 :
+	let id = req.query.id;
+	let choice = req.query.choice;
+	console.log(choice);
+	if(choice == 1){
 			models.Assets.findOne({'id':id},(err,data) => {
 				if(err){
 					console.log(err);
@@ -872,8 +901,8 @@ router.get('/api/downloadFiles',(req,res) => {
 					res.download(data.ticket,id+".pdf");
 				}
 			});
-			break;
-		case 2 :
+		}
+		else if(choice == 2){
 			models.Render.findOne({'id':id},(err,data) => {
 				if(err){
 					console.log(err);
@@ -882,8 +911,8 @@ router.get('/api/downloadFiles',(req,res) => {
 					res.download(data.ticket,id+".pdf");
 				}
 			});
-			break;
-		case 3 :
+		}
+		else if(choice == 3){
 			models.Patent.findOne({'id':id},(err,data) => {
 				if(err){
 					console.log(err);
@@ -892,32 +921,43 @@ router.get('/api/downloadFiles',(req,res) => {
 					res.download(data.content,data.name+".pdf");
 				}
 			});
-			break;
-		case 4 :
+		}
+		else if(choice == 4){
 			models.Gthesis.findOne({'id':id},(err,data) => {
 				if(err){
 					console.log(err);
 					res.send("0");
 				}else{
-					res.download(data.content,data.title+".pdf");
+					console.log(data.content);
+					res.download(data.content,function(err){
+			        if(err)
+			            console.log(err);
+			        else
+			            console.log("download successfully");
+			    });
 				}
 			});
-			break;
-		case 5 :
+		}
+		else if(choice == 5){
 			models.Sthesis.findOne({'id':id},(err,data) => {
 				if(err){
 					console.log(err);
 					res.send("0");
 				}else{
-					res.download(data.content,data.title+".pdf");
+					console.log(data.content);
+					res.download(data.content,function(err){
+			        if(err)
+			            console.log(err);
+			        else
+			            console.log("download successfully");
+			    });
 				}
 			});
-			break;
-		default :
-			console.log("choice错误！修改状态失败！");
+		}
+		else{
+			console.log("choice错误！下载文件失败！");
 			res.send("0");
-			break;
-	}
+		}
 });
 //学生向老师提交购买申请(固定资产入库)
 router.post('/api/assetApply',(req,res)=>{
@@ -1099,8 +1139,7 @@ router.post('/api/checkAccount',(req,res) => {
 router.post('/api/submitSthesisInfos',(req,res) => {
   let id = req.body.id;
   let path = req.body.path;
-  let ticketpath = path;
-  models.Assets.update({ 'id':id },{$set:{'ticket' : ticketpath}},(err) => {
+  models.Sthesis.update({ 'id':id },{$set:{'content' : path,'state':4}},(err) => {
 	if(err){
 	  	console.log(err);
 	    res.send("0");
@@ -1161,7 +1200,7 @@ router.post('/api/patentApply',(req,res) => {
   let name = req.body.name;
   let applicant = req.body.applicant;
   let inventor = req.body.inventor;
-  let apply = req.body.apply;
+  let apply = req.session.account;//到底是啥
   let projectId = req.body.projectId;
   let description = req.body.description;
   models.Patent.findOne({$and:[{'name':name},{'applicant':applicant},{'inventor':inventor},{'projectId':projectId},{'apply':apply},{'description':description}]},(err,data) => {

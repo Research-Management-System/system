@@ -83,7 +83,7 @@ export default {
           type: 'warning'
         }).then(() => {
           axios.get('/api/logoff').then((response) => {
-            location.reload();
+            location.href = '/';
           });
         }).catch(() => {
           this.$message({

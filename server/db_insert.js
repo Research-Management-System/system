@@ -151,7 +151,7 @@ assets = {
 	cost : 6000,//价格
 	projectId : "20171302001",//项目号
 	account : "123456789",//账号
-	devicestate : 1,//设备状态1：正常 2：待修 3：报废
+	deviceState : 1,//设备状态1：正常 2：待修 3：报废
 	user : "13020031154",//使用人
 	ticket : "./Tickets/20170000002.pdf",//报账票据集合为一个pdf文件后上传
 	state : 5,//申请审批状态
