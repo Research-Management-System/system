@@ -127,12 +127,6 @@ const renderSchema = mongoose.Schema({
 const Models = {
 	//登录模型
     Login : mongoose.model('userinfos',loginSchema,'userInfos'),
-    //管理员模型
-//    Admin : mongoose.model('admin',userSchema,'userInfos'),
-    //学生模型
-//    Student : mongoose.model('student',userSchema,'userInfos'),
-    //老师模型
-//    Teacher : mongoose.model('teacher',userSchema,'userInfos'),
     //项目模型
     Project : mongoose.model('project',projectSchema,'projectS'),
     //项目组模型

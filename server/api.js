@@ -10,16 +10,15 @@ const xlsx = require('node-xlsx');
 //下载报账表getRenderXlsx
 router.get('/api/getRenderXlsx',(req,res) => {
 	let year = req.body.year;
-	//let year = 2017;
-	//let month = null;
 	let month = req.body.month;
 	//先取出所有的数据再筛选
 	models.Render.find({'state':5},(err,renderdata1) => {
 		models.Assets.find({'state':5},(err,assetdata1) => {
-			models.Sthesis.find({'state':5},(err,sthesisdata1) =>{
+			models.Sthesis.find({'state':5},(err,sthesisdata1) => {
 				models.Patent.find({'state':5},(err,patentdata1) => {
 					var renderdata = [['id','kind','account','apply','projectId','cost','ticket','time']];
-					var assetdata = [['id','deviceId','name','band','model','purchaseDate','cost','projectId','account','devicestate','user','ticket','teacher','time']];
+					var assetdata = [['id','deviceId','name','band','model','purchaseDate','cost','projectId','account',
+					'devicestate','user','ticket','teacher','time']];
 					var sthesisdata = [['title','id','authors','apply','projectId','teacher','account','content','cost','time']];
 					var patentdata = [['name','id','applicant','inventor','apply','projectId','content','cost','time']];
 					if(month===null){				//没月份--------------------
@@ -33,7 +32,8 @@ router.get('/api/getRenderXlsx',(req,res) => {
 								temp.push(renderdata1[i].projectId);
 								temp.push(renderdata1[i].cost);
 								temp.push(renderdata1[i].ticket);
-								temp.push(""+renderdata1[i].time.getFullYear()+"."+renderdata1[i].time.getMonth()+"."+renderdata1[i].time.getDate());
+								temp.push(""+renderdata1[i].time.getFullYear()+"."+
+									renderdata1[i].time.getMonth()+"."+renderdata1[i].time.getDate());
 								renderdata.push(temp);
 							}
 						}
@@ -181,7 +181,8 @@ router.get('/api/getRenderXlsx',(req,res) => {
 					}
 					//写文件
 					console.log("写文件中");
-					var buffer = xlsx.build([{name:'render',data:renderdata},{name:'assets',data:assetdata},{name:'sthesis',data:sthesisdata},{name:'patent',data:patentdata}]);
+					var buffer = xlsx.build([{name:'render',data:renderdata},{name:'assets',data:assetdata},
+						{name:'sthesis',data:sthesisdata},{name:'patent',data:patentdata}]);
 					fs.writeFile('../files/Money.xlsx',buffer,'binary',(err) => {
 						if(err){
 							res.send("0");
@@ -205,6 +206,7 @@ router.post('/api/upload',(req,res) => {
 	form.parse(req,function(err,fields,files){
 		if(err){
 			console.log(err);
+			res.send("0");
 		}
 		var filename = files.resource.name;
 		//对文件名进行处理，防止上传同名文件
@@ -230,8 +232,7 @@ router.get('/api/isLogin',(req,res) => {
       let allData = {
         userInfo: data
       };
-      if(allData.userInfo.type === 1){
-        //考虑使用promise重写,处理回调地狱
+      if(allData.userInfo.type === 1 && allData.userInfo.state === 1){
         models.Project.find({students:account},(err,projects) => {
           allData.projects = projects;
           models.Projectapply.find({account:account},(err,projectApply) => {
@@ -294,8 +295,12 @@ router.get('/api/isLogin',(req,res) => {
 });
 //注销接口
 router.get('/api/logoff',(req,res) => {
-  req.session.account = null;
-  res.send("log off success!");
+	if(req.session.account !== null){
+		req.session.account = null;
+		res.send("1");
+	}else{
+		res.send("0");
+	} 
 });
 // 登录接口
 router.post('/api/login',(req,res) => {
@@ -307,69 +312,68 @@ router.post('/api/login',(req,res) => {
             let msg = "0";
             res.send(msg);
         } else if(data.password != password){
-            let msg = "1";
+            let msg = "0";
             res.send(msg);
         } else {
             req.session.account = account;
             let allData = {
               userInfo: data
             };
-            if(allData.userInfo.type === 1){
-              models.Project.find({students:account},(err,projects) => {
-                allData.projects = projects;
-                models.Projectapply.find({account:account},(err,projectApply) => {
-                  allData.projectApply = projectApply;
-                  // models.ProjectG.find({students:account},(err,projectGs) =>{
-                  //    allData.projectGs = projectGs;
-                  //  });
-                  models.Sthesis.find({apply:account},(err,sthesises) => {
-                    allData.sthesises = sthesises;
-                    models.Gthesis.find({apply:account},(err,gthesises) => {
-                      allData.gthesises = gthesises;
-                      models.Patent.find({apply:account},(err,patents) => {
-                        allData.patents = patents;
-                        models.Assets.find({user:account},(err,assets) => {
-                          allData.assets = assets;
-                          models.Render.find({apply:account},(err,renders) => {
-                            allData.renders = renders;
-                            res.send(allData);
-                          });
-                        });
-                      });
-                    })
-                  });
-                });
-              });
-            }else{
-              models.Project.find((err,projects) => {
-                allData.projects = projects;
-                models.Projectapply.find({teacher:account},(err,projectApply) => {
-                  allData.projectApply = projectApply;
-                  models.ProjectG.find((err,projectGs) =>{
-                    allData.projectGs = projectGs;
-                    models.Sthesis.find((err,sthesises) => {
-                      allData.sthesises = sthesises;
-                      models.Gthesis.find((err,gthesises) => {
-                        allData.gthesises = gthesises;
-                        models.Patent.find((err,patents) => {
-                          allData.patents = patents;
-                          models.Assets.find((err,assets) => {
-                            allData.assets = assets;
-                            models.Render.find((err,renders) => {
-                              allData.renders = renders;
-                              models.Login.find({teacher:account,state:0},(err,signInApply) => {
-                                allData.signInApply = signInApply;
-                                res.send(allData);
-                              });
-                            });
-                          });
-                        });
-                      });
-                    });
-                  });
-                });
-              });
-            }
+            if(allData.userInfo.state === 1){
+            	if(allData.userInfo.type === 1){
+            	  models.Project.find({students:account},(err,projects) => {
+            	    allData.projects = projects;
+            	    models.Projectapply.find({account:account},(err,projectApply) => {
+            	      allData.projectApply = projectApply;
+            	      models.Sthesis.find({apply:account},(err,sthesises) => {
+            	        allData.sthesises = sthesises;
+            	        models.Gthesis.find({apply:account},(err,gthesises) => {
+            	          allData.gthesises = gthesises;
+            	          models.Patent.find({apply:account},(err,patents) => {
+            	            allData.patents = patents;
+            	            models.Assets.find({user:account},(err,assets) => {
+            	              allData.assets = assets;
+            	              models.Render.find({apply:account},(err,renders) => {
+            	                allData.renders = renders;
+            	                res.send(allData);
+            	              });
+            	            });
+            	          });
+            	        })
+            	      });
+            	    });
+            	  });
+            	}else{
+            	  models.Project.find((err,projects) => {
+            	    allData.projects = projects;
+            	    models.Projectapply.find({teacher:account},(err,projectApply) => {
+            	      allData.projectApply = projectApply;
+            	      models.ProjectG.find((err,projectGs) =>{
+            	        allData.projectGs = projectGs;
+            	        models.Sthesis.find((err,sthesises) => {
+            	          allData.sthesises = sthesises;
+            	          models.Gthesis.find((err,gthesises) => {
+            	            allData.gthesises = gthesises;
+            	            models.Patent.find((err,patents) => {
+            	              allData.patents = patents;
+            	              models.Assets.find((err,assets) => {
+            	                allData.assets = assets;
+            	                models.Render.find((err,renders) => {
+            	                  allData.renders = renders;
+            	                  models.Login.find({teacher:account,state:0},(err,signInApply) => {
+            	                    allData.signInApply = signInApply;
+            	                    res.send(allData);
+            	                  });
+            	                });
+            	              });
+            	            });
+            	          });
+            	        });
+            	      });
+            	    });
+            	  });
+            	}
+            }            
         }
     });
 });
@@ -378,30 +382,45 @@ router.post('/api/changePassword',(req,res) => {
   let account = req.body.account;
   let password = req.body.newPassword;
   let prepassword = req.body.oldPassword;
-  models.Login.update({$and:[{'account':account},{'password':prepassword}]},{$set:{'password':req.body.newPassword}},function(err){
-    if(err){
-      console.log(err);
-      let msg = "0";
-      res.send(msg);
-    }else{
-      let msg = "1";
-      res.send(msg);
-    }
+  models.Login.findOne({'account':account},(err,data) => {
+  	if(data && data.type !== 0){
+  		models.Login.update({$and:[{'account':account},{'password':prepassword}]},
+  			{$set:{'password':req.body.newPassword}},function(err){
+  		  if(err){
+  		    console.log(err);
+  		    let msg = "0";
+  		    res.send(msg);
+  		  }else{
+  		    let msg = "1";
+  		    res.send(msg);
+  		  }
+  		});
+  	}else{
+  		console.log("修改失败请联系管理员");
+  		res.send("0");
+  	}
   });
 });
 //重置密码
 router.post('/api/resetPassword',(req,res) => {
 	let account = req.body.account;
-	models.Login.update({'account':account},{$set:{'password':account}},function(err){
-	  if(err){
-	    console.log(err);
-	    let msg = "0";
-	    res.send(msg);
-	  }else{
-	    let msg = "1";
-	    res.send(msg);
-	  }
+	models.Login.findOne({'account':account},(err,data) => {
+		if(data){
+			models.Login.update({'account':account},{$set:{'password':account}},function(err){
+			  if(err){
+			    console.log(err);
+			    let msg = "0";
+			    res.send(msg);
+			  }else{
+			    let msg = "1";
+			    res.send(msg);
+			  }
+			});
+		}else{
+			res.send("0");
+		}
 	});
+	
 });
 //用户注册
 router.post('/api/signIn',(req,res) => {
@@ -457,8 +476,6 @@ router.post('/api/changeUserinfo',(req,res) => {
   let name = req.body.name;
   let email = req.body.email;
   let phone = req.body.phone;
-  console.log(account+"用户修改信息");
-
   models.Login.update({'account':account},{$set:{'name':name,'email':email,'phone':phone}},function(err){
     if(err){
       console.log(err);
@@ -471,15 +488,21 @@ router.post('/api/changeUserinfo',(req,res) => {
 //激活用户
 router.post('/api/activeUser',(req,res) => {
   let account = req.body.account;
-  models.Login.update({'account':account},{$set:{'state':1}},(err) => {
-    if(err){
-      console.log(err);
-      res.send("0");
-    }else{
-      console.log("激活："+account);
-      res.send("1");
-    }
-  });
+  models.Login.findOne({'account':account},(err,data) =>{
+  	if(data){
+  		models.Login.update({'account':account},{$set:{'state':1}},(err) => {
+  		  if(err){
+  		    console.log(err);
+  		    res.send("0");
+  		  }else{
+  		    console.log("激活："+account);
+  		    res.send("1");
+  		  }
+  		});
+  	}else{
+  		res.send("0");
+  	}
+  }); 
 });
 //审核项目加入申请
 router.post('/api/checkJoinProject',(req,res) => {
@@ -492,20 +515,15 @@ router.post('/api/checkJoinProject',(req,res) => {
       res.send("0");
     }else{
       if(state===1){
-        console.log("同意申请"+account);
         models.Login.update({'account':account},{$addToSet:{'projects':projectId}},(err) => {
           models.Project.update({'id':projectId},{$addToSet:{'students':account}},(err) => {
             models.ProjectG.update({'projects':projectId},{$addToSet:{'students':account}},(err) => {
-              models.Projectapply.update({state: 1},(err) =>{
-                res.send("1");
-              });
+              res.send("1");
             });
           });
         });
       }else{
-        models.Projectapply.update({state: 1},(err) =>{
-          res.send("2");
-        });
+        res.send("1");
       }
     }
   });
@@ -772,7 +790,8 @@ router.post('/api/gthesisApply',(req,res) => {
 	let apply = req.session.account;
 	let path = req.body.path;
 	let content = path;
-	models.Gthesis.findOne({$and:[{'title':title},{'authors':authors},{'editor':editor},{'teacher':teacher},{'apply':apply}]},(err,data) => {
+	models.Gthesis.findOne({$and:[{'title':title},{'authors':authors},
+		{'editor':editor},{'teacher':teacher},{'apply':apply}]},(err,data) => {
 		if(data){
 			console.log("该毕业论文论文已经存在");
       		res.send("0");
@@ -823,14 +842,19 @@ router.post('/api/checkGthesisApply',(req,res) => {
 router.post('/api/submitGthesisInfos',(req,res) => {
 	let id = req.body.id;
 	let state = req.body.state;
-	let path = req.body.path;
-	let content = path;
-	models.Gthesis.update({'id':id},{$set:{'state':state,'content':content}},(err) => {
-		if(err){
-		  console.log(err);
-		  res.send("0");
+	let content = req.body.path;
+	models.Gthesis.findOne({'id':id},(err,data) => {
+		if(data){
+			models.Gthesis.update({'id':id},{$set:{'state':state,'content':content}},(err) => {
+				if(err){
+				  console.log(err);
+				  res.send("0");
+				}else{
+				  res.send("1");
+				}
+			});
 		}else{
-		  res.send("1");
+			res.send("0");
 		}
 	});
 });
