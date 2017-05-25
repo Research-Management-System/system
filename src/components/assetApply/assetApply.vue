@@ -1,8 +1,8 @@
 <template>
   <div class="mod-asset-apply">
-    <h3>专利申请</h3>
+    <h3>固定资产入库申请</h3>
     <el-button class="apply-btn" type="primary" @click="assetApply = true">创建申请</el-button>
-    <el-dialog title="专利申请" v-model="assetApply">
+    <el-dialog title="固定资产入库申请" v-model="assetApply">
       <el-form>
         <el-form-item>
           <el-input v-model="band" auto-complete="off" placeholder="设备厂商"></el-input>
@@ -11,16 +11,16 @@
           <el-input v-model="name" auto-complete="off" placeholder="设备名"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-input v-model="model" auto-complete="off" placeholder="型号"></el-input>
+          <el-input v-model="model" auto-complete="off" placeholder="设备型号"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-input v-model="cost" auto-complete="off" placeholder="价格"></el-input>
+          <el-input v-model="cost" auto-complete="off" placeholder="金额"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-input v-model="projectId" auto-complete="off" placeholder="项目id"></el-input>
+          <el-input v-model="projectId" auto-complete="off" placeholder="项目编号"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-input v-model="teacher" auto-complete="off" placeholder="负责教师"></el-input>
+          <el-input v-model="teacher" auto-complete="off" placeholder="审核教师工号"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -28,23 +28,33 @@
         <el-button type="primary" @click="sendApply">确 定</el-button>
       </div>
     </el-dialog>
-    <h3 v-if="this.data.userInfo.type ===1">我的申请</h3>
+    <h3>我的申请</h3>
     <div class="asset-table">
       <el-table :data="assets" border style="width: 100%">
-        <el-table-column prop="band" label="设备厂商">
+        <el-table-column prop="projectId" label="所属项目编号">
         </el-table-column>
         <el-table-column prop="name" label="设备名">
         </el-table-column>
-        <el-table-column prop="model" label="型号">
+        <el-table-column prop="cost" label="金额">
         </el-table-column>
-        <el-table-column prop="cost" label="价格">
+        <el-table-column prop="account" label="分配报账账号">
         </el-table-column>
-        <el-table-column prop="state" label="申请状态">
+        <el-table-column prop="applyState" label="申请状态">
         </el-table-column>
-        <el-table-column label="操作">
-          <template>
-            下载
-          </template>
+        <el-table-column label="上传票据">
+            <template scope="asset">
+              <form action="/api/upload" method="post" id="finalUpload" enctype='multipart/form-data'>
+                  <input type="file" name ="inputFile" id="uploadFinalFile" />
+              </form>
+              <el-button
+                size="small"
+                :disabled="asset.row.state != 3"
+                @click="inputClick">选择文件</el-button>
+              <el-button
+                size="small"
+                :disabled="asset.row.state != 3"
+                @click="uploadFinalFile(asset.row)">上传</el-button>
+            </template>
         </el-table-column>
       </el-table>
       <el-pagination class="page-change" @current-change="pageChange" layout="prev, pager, next" :total="assetLength" :page-size="10">
@@ -54,15 +64,16 @@
 </template>
 
 <script>
-const applyState = ['待教师审核','待管理审核','审核通过'];
+import axios from 'axios';
+const applyState = ['已拒绝','待教师审核','待财务管理员审核','待上传票据及信息','待财务管理员二审','审核通过'];
 export default {
   data(){
     return {
       band: '',
       name: '',
-      model: '',
       cost: '',
       projectId: '',
+      model: '',
       teacher: '',
       assetApply: false,
       assets: this.data.assets.slice(0,10),
@@ -74,22 +85,76 @@ export default {
     pageChange(currentPage){
       this.assets = this.data.assets.slice(((currentPage-1)*10),currentPage*10);
       this.assets.forEach(item => {
-        item.state = applyState[item.state];
+        item.applyState = applyState[item.state];
       });
     },
     sendApply(){
       let data = {
-        title: this.title,
-        authors: this.authors,
+        band: this.band,
+        cost: this.cost,
+        name: this.name,
+        model: this.model,
         teacher: this.teacher,
-        editor: this.editor
+        projectId: this.projectId
+      };
+      axios.post('/api/assetApply',data).then((response) => {
+        if(response.data == 1){
+          location.reload();
+        }else{
+          this.$alert('操作失败', '提示', {
+            confirmButtonText: '确定',
+            callback: action => {
+              location.reload();
+            }
+          });
+        }
+      })
+    },
+    inputClick(){
+      let fileDom = document.getElementById("uploadFinalFile");
+      fileDom.click();
+    },
+    uploadFinalFile(obj){
+      let data = {
+        id: obj.id
       };
       console.log(data);
+      let fileDom = document.getElementById("uploadFinalFile");
+      let file = fileDom.files[0];
+      if(file){
+        let formdata = new FormData();
+        formdata.append('inputFile',file);
+        axios({
+            url:'/api/upload',
+            method:'post',
+            data:formdata,
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+        }).then((res)=>{
+          data.path = res.data.filePath;
+          axios.post('/api/submitassetInfos',data).then((response) => {
+            console.log(response.data);
+            if(response.data === 1){
+              location.reload();
+            }else{
+              this.$alert('操作失败', '提示', {
+                confirmButtonText: '确定',
+                callback: action => {
+                  location.reload();
+                }
+              });
+            }
+          });
+        });
+      }else{
+        this.$alert('请先选择文件', '提示', {
+          confirmButtonText: '确定'
+        });
+      }
     }
   },
   created() {
     this.assets.forEach(item => {
-      item.state = applyState[item.state];
+      item.applyState = applyState[item.state];
     });
   }
 }

@@ -79,7 +79,9 @@ const gthesisSchema = mongoose.Schema({
 /************** 定义模式patentSchema **************/
 const patentSchema = mongoose.Schema({
 	name : String,
-	id : String,//专利申请号或专利号
+	id : String,
+  noticeId: String,
+  patentId: String,
 	applicant : String,
 	inventor : Array,
 	apply : String,
@@ -115,6 +117,7 @@ const renderSchema = mongoose.Schema({
 	id : String,
 	kind : String,
 	description : String,
+  teacher: String,
 	account : String,
 	apply : String,
 	projectId : String,

@@ -13,9 +13,12 @@ import gthesiseCheck from './components/gthesiseCheck/gthesiseCheck.vue';
 import sthesiseApply from './components/sthesiseApply/sthesiseApply.vue';
 import sthesiseCheck from './components/sthesiseCheck/sthesiseCheck.vue';
 import patentApply from './components/patentApply/patentApply.vue';
+import patentCheck from './components/patentCheck/patentCheck.vue';
 import assetApply from './components/assetApply/assetApply.vue';
 import renderApply from './components/renderApply/renderApply.vue';
+import renderCheck from './components/renderCheck/renderCheck.vue';
 import assetCheck from './components/assetCheck/assetCheck.vue';
+import assetLook from './components/assetLook/assetLook.vue';
 
 Vue.use(ElementUI);
 Vue.use(VueRouter);
@@ -31,8 +34,11 @@ let routes = [
   {path: '/gthesiseCheck', component: gthesiseCheck},
   {path: '/sthesiseCheck', component: sthesiseCheck},
   {path: '/patentApply', component: patentApply},
+  {path: '/patentCheck', component: patentCheck},
   {path: '/assetApply', component: assetApply},
   {path: '/renderApply', component: renderApply},
+  {path: '/renderCheck', component: renderCheck},
+  {path: '/assetLook', component: assetLook},
   {path: '/assetCheck', component: assetCheck}
 ];
 

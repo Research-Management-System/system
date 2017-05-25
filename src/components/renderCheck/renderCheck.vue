@@ -1,5 +1,5 @@
 <template>
-  <div class="mod-asset-check">
+  <div class="mod-render-check">
     <el-dialog title="分配账号" v-model="accountAssign">
       <el-form>
         <el-form-item>
@@ -11,28 +11,23 @@
         <el-button type="primary" @click="sendApply">确 定</el-button>
       </div>
     </el-dialog>
-    <h3>固定资产入库申请审核</h3>
-    <div class="asset-table">
-      <el-table :data="assets" border style="width: 100%">
+    <h3>不入库报账申请审核</h3>
+    <div class="render-table">
+      <el-table :data="renders" border style="width: 100%">
         <el-table-column prop="projectId" label="所属项目编号">
         </el-table-column>
-        <el-table-column prop="name" label="设备名">
-        </el-table-column>
         <el-table-column prop="cost" label="报账金额">
+        </el-table-column>
+        <el-table-column prop="description" label="描述">
         </el-table-column>
         <el-table-column prop="time" label="申请时间">
         </el-table-column>
         <el-table-column prop="applyState" label="申请状态">
         </el-table-column>
-        <!-- <el-table-column label="下载票据" v-if="this.type === 4">
-          <template scope="asset">
-            <assetDetails :data="details.row"></assetDetails>
-          </template>
-        </el-table-column> -->
         <el-table-column label="下载票据" v-if="this.type === 4">
-          <template scope="asset">
-            <el-button size="small" :disabled="asset.row.state < 4">
-              <a :href="'/api/downloadFiles?id=' + asset.row.id +'&choice=2'" v-if="asset.row.state >= 4">下载</a>
+          <template scope="render">
+            <el-button size="small" :disabled="render.row.state < 4">
+              <a :href="'/api/downloadFiles?id=' + render.row.id +'&choice=2'" v-if="render.row.state >= 4">下载</a>
               <span v-else>下载</span>
             </el-button>
           </template>
@@ -69,7 +64,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination class="page-change" @current-change="pageChange" layout="prev, pager, next" :total="assetLength" :page-size="10">
+      <el-pagination class="page-change" @current-change="pageChange" layout="prev, pager, next" :total="renderLength" :page-size="10">
       </el-pagination>
     </div>
   </div>
@@ -82,19 +77,23 @@ export default {
   data(){
     return {
       type: this.data.userInfo.type,
+      name: '',
+      inventor: '',
+      projectId: '',
       description: '',
+      applicant: '',
       currentObj: {},
       account: '',
       accountAssign: false,
-      assets: this.data.assets.slice(0,10),
-      assetLength: this.data.assets.length
+      renders: this.data.renders.slice(0,10),
+      renderLength: this.data.renders.length
     }
   },
   props: ['data'],
   methods: {
     pageChange(currentPage){
-      this.assets = this.data.assets.slice(((currentPage-1)*10),currentPage*10);
-      this.assets.forEach(item => {
+      this.renders = this.data.renders.slice(((currentPage-1)*10),currentPage*10);
+      this.renders.forEach(item => {
         item.applyState = applyState[item.state];
         item.time = item.time.slice(0,10);
       });
@@ -141,7 +140,7 @@ export default {
             type: 'warning'
           }).then(() => {
             if(this.type === 2){//教师审核
-              axios.post('/api/checkassetApply',data).then((response) => {
+              axios.post('/api/checkRenderApply',data).then((response) => {
                 console.log(response.data);
                 if(response.data == 1){
                   location.reload();
@@ -178,7 +177,7 @@ export default {
             type: 'warning'
           }).then(() => {
             if(this.type === 2){//教师审核
-              axios.post('/api/checkassetApply',data).then((response) => {
+              axios.post('/api/checkRenderApply',data).then((response) => {
                 console.log(response.data);
                 if(response.data == 1){
                   location.reload();
@@ -212,7 +211,7 @@ export default {
     }
   },
   created() {
-    this.assets.forEach(item => {
+    this.renders.forEach(item => {
       item.applyState = applyState[item.state];
       item.time = item.time.slice(0,10);
     });
@@ -221,8 +220,8 @@ export default {
 </script>
 
 <style lang="less">
-.mod-asset-check{
-  .asset-table{
+.mod-render-check{
+  .render-table{
     .cell{
       white-space:nowrap;
       overflow:hidden;

@@ -113,8 +113,34 @@ router.get('/api/isLogin',(req,res) => {
             });
           });
         });
-      }else{
+      }else if(allData.userInfo.type === 2){
         models.Project.find((err,projects) => {
+          allData.projects = projects;
+          models.Projectapply.find({teacher:account},(err,projectApply) => {
+            allData.projectApply = projectApply;
+            models.ProjectG.find((err,projectGs) =>{
+              allData.projectGs = projectGs;
+              models.Sthesis.find((err,sthesises) => {
+                allData.sthesises = sthesises;
+                models.Gthesis.find((err,gthesises) => {
+                  allData.gthesises = gthesises;
+                  models.Patent.find((err,patents) => {
+                    allData.patents = patents;
+                    models.Assets.find((err,assets) => {
+                      allData.assets = assets;
+                      models.Render.find({teacher:account},(err,renders) => {
+                        allData.renders = renders;
+                        res.send(allData);
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      }else{
+				models.Project.find((err,projects) => {
           allData.projects = projects;
           models.Projectapply.find({teacher:account},(err,projectApply) => {
             allData.projectApply = projectApply;
@@ -130,7 +156,7 @@ router.get('/api/isLogin',(req,res) => {
                       allData.assets = assets;
                       models.Render.find((err,renders) => {
                         allData.renders = renders;
-                        models.Login.find({teacher:account,state:0},(err,signInApply) => {
+                        models.Login.find({type:2,account,state:0},(err,signInApply) => {
                           allData.signInApply = signInApply;
                           res.send(allData);
                         });
@@ -142,7 +168,7 @@ router.get('/api/isLogin',(req,res) => {
             });
           });
         });
-      }
+			}
     });
   }else{
     res.send(account);
@@ -196,7 +222,7 @@ router.post('/api/login',(req,res) => {
                   });
                 });
               });
-            }else{
+            }else if(allData.userInfo.type === 2){
               models.Project.find((err,projects) => {
                 allData.projects = projects;
                 models.Projectapply.find({teacher:account},(err,projectApply) => {
@@ -211,7 +237,7 @@ router.post('/api/login',(req,res) => {
                           allData.patents = patents;
                           models.Assets.find((err,assets) => {
                             allData.assets = assets;
-                            models.Render.find((err,renders) => {
+                            models.Render.find({teacher:account},(err,renders) => {
                               allData.renders = renders;
                               models.Login.find({teacher:account,state:0},(err,signInApply) => {
                                 allData.signInApply = signInApply;
@@ -225,7 +251,36 @@ router.post('/api/login',(req,res) => {
                   });
                 });
               });
-            }
+            }else{
+							models.Project.find((err,projects) => {
+			          allData.projects = projects;
+			          models.Projectapply.find({teacher:account},(err,projectApply) => {
+			            allData.projectApply = projectApply;
+			            models.ProjectG.find((err,projectGs) =>{
+			              allData.projectGs = projectGs;
+			              models.Sthesis.find((err,sthesises) => {
+			                allData.sthesises = sthesises;
+			                models.Gthesis.find((err,gthesises) => {
+			                  allData.gthesises = gthesises;
+			                  models.Patent.find((err,patents) => {
+			                    allData.patents = patents;
+			                    models.Assets.find((err,assets) => {
+			                      allData.assets = assets;
+			                      models.Render.find((err,renders) => {
+			                        allData.renders = renders;
+			                        models.Login.find({type:2,account,state:0},(err,signInApply) => {
+			                          allData.signInApply = signInApply;
+			                          res.send(allData);
+			                        });
+			                      });
+			                    });
+			                  });
+			                });
+			              });
+			            });
+			          });
+			        });
+						}
         }
     });
 });
@@ -549,12 +604,11 @@ router.post('/api/checkMoney',(req,res) => {
 			break;
 	}
 });
-//32行 submitRenderInfos 上传报账票据
+//32行 submitRenderInfos 上传报账票据down
 router.post('/api/submitRenderInfos',(req,res) => {
 	let id = req.body.id;
 	let path = req.body.path;
-	let ticket = path;
-	models.Render.update({'id':id},{$set:{'ticket':ticket,'state':4}},(err) => {
+	models.Render.update({'id':id},{$set:{'ticket':path,'state':4}},(err) => {
 		if(err){
 		  console.log(err);
 		  res.send("0");
@@ -698,7 +752,13 @@ router.get('/api/downloadFiles',(req,res) => {
 					console.log(err);
 					res.send("0");
 				}else{
-					res.download(data.ticket,id+".pdf");
+					console.log(data.ticket);
+					res.download(data.ticket,function(err){
+			        if(err)
+			            console.log(err);
+			        else
+			            console.log("download successfully");
+			    });
 				}
 			});
 		}
@@ -708,7 +768,13 @@ router.get('/api/downloadFiles',(req,res) => {
 					console.log(err);
 					res.send("0");
 				}else{
-					res.download(data.content,data.name+".pdf");
+					console.log(data.content);
+					res.download(data.content,function(err){
+			        if(err)
+			            console.log(err);
+			        else
+			            console.log("download successfully");
+			    });
 				}
 			});
 		}
@@ -811,13 +877,14 @@ router.post('/api/changeState',(req,res)=>{
     }
   });
 });
-//提交报账申请(不入库报账)
+//提交报账申请(不入库报账)down
 router.post('/api/renderApply',(req,res)=>{
   let kind = req.body.kind;
   let description = req.body.description;
   let cost = req.body.cost;
   let projectId = req.body.projectId;
   let apply = req.session.account;
+	let teacher = req.body.teacher;
   models.Render.count((err,count) => {
     count=count+1;
     var id = (new Date().getFullYear())+"04"+(Array(5).join('0')+count).slice(-5); //id:年份+“04”+“报账申请数+1”
@@ -830,6 +897,7 @@ router.post('/api/renderApply',(req,res)=>{
       projectId : projectId,
       cost : cost,
       state : 1,
+			teacher: teacher,
       ticket : "",//报账票据集合成一个pdf文件后上传
       time : new Date()
     }
@@ -842,7 +910,7 @@ router.post('/api/renderApply',(req,res)=>{
     });
   });
 });
-//老师审核报账申请（不入库报账）
+//老师审核报账申请（不入库报账）down
 router.post('/api/checkRenderApply',(req,res)=>{
   let id = req.body.id;
   let state = req.body.state;
@@ -933,7 +1001,7 @@ router.post('/api/checkAchievements',(req,res) => {
   //根据id查找数据库的数据，并将其state改为5。
   switch(choice){
 	case 1:
-		models.Sthesis.update({ 'id':id },{$set:{'state' : 5}},(err) => {
+		models.Sthesis.update({ 'id':id },{$set:{'state' : state}},(err) => {
 		    if(err){
 		      console.log(err);
 		      res.send("0");
@@ -944,7 +1012,7 @@ router.post('/api/checkAchievements',(req,res) => {
 		  });
 		break;
 	case 2:
-		models.Gthesis.update({ 'id':id },{$set:{'state' : 5}},(err) => {
+		models.Gthesis.update({ 'id':id },{$set:{'state' : state}},(err) => {
 		    if(err){
 		      console.log(err);
 		      res.send("0");
@@ -955,7 +1023,7 @@ router.post('/api/checkAchievements',(req,res) => {
 		  });
 		break;
 	case 3:
-		models.Patent.update({ 'id':id },{$set:{'state' : 5}},(err) => {
+		models.Patent.update({ 'id':id },{$set:{'state' : state}},(err) => {
 		    if(err){
 		      console.log(err);
 		      res.send("0");
@@ -971,7 +1039,7 @@ router.post('/api/checkAchievements',(req,res) => {
 		break;
 	}
 });
-//提交专利申请
+//提交专利申请down
 router.post('/api/patentApply',(req,res) => {
   let name = req.body.name;
   let applicant = req.body.applicant;
@@ -985,6 +1053,8 @@ router.post('/api/patentApply',(req,res) => {
     var patent = {
       name : name,
       id : id,
+			noticeId: "",
+			patentId: "",
       applicant : applicant,
       inventor : inventor,
       apply : apply,
@@ -992,8 +1062,8 @@ router.post('/api/patentApply',(req,res) => {
       state : 1,
       description : description,
       applystate : 0,
-      content : null,
-      cost : null,
+      content : "",
+      cost : 0,
       time : new Date()
     }
     models.Patent.create(patent,(err) => {
@@ -1007,15 +1077,17 @@ router.post('/api/patentApply',(req,res) => {
     });
   });
 });
-//上传受理通知书和专利申请号以及费用预算
+//上传受理通知书和专利申请号以及费用预算down
 router.post('/api/uploadAcceptance',(req,res) =>{
-  let oldId = req.body.oldId;
-  let newId = req.body.newId;
-  let applystate = req.body.applystate;
+  let id = req.body.id;
+  let noticeId = req.body.noticeId;
+  // let applystate = req.body.applystate;
   let cost = req.body.cost;
   let path = req.body.path;
-  let contentpath = path;
-  models.Patent.update({ 'id':oldId },{$set:{'id' : newId,'content' : contentpath,'applystate' : applystate,'cost' : cost}},(err,result) => {
+	console.log(id);
+	console.log(noticeId);
+	console.log(path);
+  models.Patent.update({ 'id':id },{$set:{'noticeId':noticeId,'content':path,'cost':cost,'state':2}},(err) => {
   	if(err){
 	    console.log("更新失败");
 	    console.log(err);
@@ -1027,28 +1099,29 @@ router.post('/api/uploadAcceptance',(req,res) =>{
   });
 });
 //修改专利申请状态
-router.post('/api/changeApplyState',(req,res) => {
-  let id = req.body.id;
-  let applystate = req.body.applystate;
+// router.post('/api/changeApplyState',(req,res) => {
+//   let id = req.body.id;
+//   let applystate = req.body.applystate;
+//
+//   models.Patent.update({ 'id':id },{$set:{'applystate' : applystate}},(err,result) => {
+//     if(err){
+//       console.log("更新失败"+err);
+//       res.send("0");
+//     }else{
+//       console.log("update patent success");
+//       res.send("1");
+//     }
+//   });
+// });
 
-  models.Patent.update({ 'id':id },{$set:{'applystate' : applystate}},(err,result) => {
-    if(err){
-      console.log("更新失败"+err);
-      res.send("0");
-    }else{
-      console.log("update patent success");
-      res.send("1");
-    }
-  });
-});
-//上传专利证书
+//上传专利证书down
 router.post('/api/uploadCertificate',(req,res) => {
-  let oldId = req.body.oldId;
-  let applystate = req.body.applystate;
-  let newId = req.body.newId;
+  let id = req.body.id;
+  // let applystate = req.body.applystate;
+  let patentId = req.body.patentId;
   let path = req.body.path;
   let contentpath = path;
-  models.Patent.update({ 'id':oldId },{$set:{'id':newId,'applystate':applystate,'content':contentpath}},(err) => {
+  models.Patent.update({ 'id':id },{$set:{'id':patentId,'content':contentpath,'state': 4}},(err) => {
   	if(err){
     	console.log("更新失败"+err);
     	res.send("0");
