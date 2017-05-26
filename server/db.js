@@ -104,7 +104,7 @@ const assetsSchema = mongoose.Schema({
 	cost : Number,//价格
 	projectId : String,//项目号
 	account : String,//账号
-	devicestate : Number,//设备状态1：正常 2：待修 3：报废
+	deviceState : String,//设备状态1：正常 2：待修 3：报废
 	user : String,//使用人，就是报账的这个用户
 	ticket : String,//报账票据集合为一个pdf文件后上传
 	state : Number,//申请审批状态

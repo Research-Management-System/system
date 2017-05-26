@@ -522,15 +522,31 @@ router.post('/api/createProject',(req,res) => {
   });
 });
 //固定资产管理---------------------------------------------------------
-//20行 submitAssetInfos
-router.post('/api/submitAssetInfos',(req,res) => {
-	let deviceId = req.body.deviceId;
-	let oldId = req.body.oldId;
-	let newId = req.body.newId;
-	let purchaseDate = req.body.purchaseDate;
+//20行 上传固定资产票据down
+router.post('/api/submitAssetFile',(req,res) => {
+	let id = req.body.id;
 	let path = req.body.path;
-	let ticket = path;
-	models.Assets.update({'id':oldId},{$set:{'id':newId,'deviceId':deviceId,'purchaseDate':purchaseDate,'ticket':ticket}},(err) => {
+	models.Assets.update({'id':id},{$set:{'ticket':path,'state': 4}},(err) => {
+		if(err){
+		  console.log(err);
+		  res.send("0");
+		}else{
+		  res.send("1");
+		}
+	});
+});
+//修改固定资产信息down
+router.post('/api/submitAssetInfo',(req,res) => {
+	let deviceId = req.body.deviceId;
+	let name = req.body.name;
+	let id = req.body.id;
+	let band = req.body.band;
+	let model = req.body.model;
+	let projectId = req.body.projectId;
+	let cost = req.body.cost;
+	let deviceState = req.body.deviceState;
+	let purchaseDate = req.body.purchaseDate;
+	models.Assets.update({'id':id},{$set:{'deviceId':deviceId,'deviceState':deviceState,'model':model,'band':band,'cost':cost,'purchaseDate':purchaseDate,'name':name}},(err) => {
 		if(err){
 		  console.log(err);
 		  res.send("0");
@@ -742,7 +758,13 @@ router.get('/api/downloadFiles',(req,res) => {
 					console.log(err);
 					res.send("0");
 				}else{
-					res.download(data.ticket,id+".pdf");
+					console.log(data.ticket);
+					res.download(data.ticket,function(err){
+			        if(err)
+			            console.log(err);
+			        else
+			            console.log("download successfully");
+			    });
 				}
 			});
 		}
@@ -837,7 +859,7 @@ router.post('/api/assetApply',(req,res)=>{
       cost : cost,//价格
       projectId : projectId,//项目号
       account : "",//账号
-      devicestate : 1,//设备状态1：正常 2：待修 3：报废
+      deviceState : "",//设备状态1：正常 2：待修 3：报废
       user : user,//使用人，就是报账的这个用户
       ticket : "",//报账票据集合为一个pdf文件后上传
       state : 1,//申请审批状态

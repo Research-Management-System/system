@@ -74,8 +74,8 @@
             <a href="/#/sthesiseCheck"><el-menu-item index="2-1">小论文申请审核</el-menu-item></a>
             <a href="/#/patentCheck"><el-menu-item index="2-2">专利申请审核</el-menu-item></a>
           </el-submenu>
-          <el-submenu index="2">
-            <template slot="title"><i class="el-icon-setting"></i>财务管理</template>
+          <el-submenu index="2" :class="{open: hash=='\#\/assetLook'}">
+            <template  slot="title"><i class="el-icon-setting"></i>财务管理</template>
             <a href="/#/renderCheck"><el-menu-item index="3-1">不入库报账申请审核</el-menu-item></a>
             <a href="/#/assetCheck"><el-menu-item index="3-2">固定资产入库审核</el-menu-item></a>
             <a href="/#/assetLook"><el-menu-item index="3-3">固定资产查看</el-menu-item></a>
@@ -102,6 +102,11 @@
 <script>
     // import axios from 'axios';
     export default {
+      data(){
+        return {
+          hash: ''
+        }
+      },
       props: ['userInfo'],
       methods: {
         handleOpen(key, keyPath) {
@@ -110,7 +115,13 @@
         handleClose(key, keyPath) {
           console.log(key, keyPath);
         }
-      }
+      },
+      // created(){
+      //   this.hash = location.hash;
+      //   var dom = document.getElementsByClassName('open')[0];
+      //   console.log(dom);
+      //   // dom.click();
+      // }
     }
 </script>
 <style lang="less">
