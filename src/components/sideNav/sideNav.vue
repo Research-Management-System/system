@@ -96,6 +96,22 @@
           </el-submenu>
         </el-menu>
       </el-col>
+      <el-col v-if="this.userInfo.type === 0">
+        <el-menu default-active="1-1" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose" theme="dark">
+          <!-- <el-submenu index="1">
+            <template slot="title"><i class="el-icon-edit"></i>项目过程管理</template>
+              <a href="/#/"><el-menu-item index="1-1">查看所有项目</el-menu-item></a>
+          </el-submenu> -->
+          <a href="/#/teacherCheck"><el-menu-item index="1">教师申请审核</el-menu-item></a>
+          <a href="/#/resetPassword"><el-menu-item index="2">重置密码</el-menu-item></a>
+          <!-- <el-submenu index="1">
+            <template slot="title"><i class="el-icon-setting"></i>财务管理</template>
+            <a href="/#/renderCheck"><el-menu-item index="3-1">不入库报账申请审核</el-menu-item></a>
+            <a href="/#/assetCheck"><el-menu-item index="3-2">固定资产入库审核</el-menu-item></a>
+            <a href="/#/assetLook"><el-menu-item index="3-3">固定资产查看</el-menu-item></a>
+          </el-submenu> -->
+        </el-menu>
+      </el-col>
     </div>
 </template>
 

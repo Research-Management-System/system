@@ -24,6 +24,9 @@ export default {
     loginSuccess(data) {
       this.isLogin = true;
       this.data = data;
+      if(data.userInfo.type === 0){
+        location.href = "/#/teacherCheck";
+      }
     }
   },
   mounted() {

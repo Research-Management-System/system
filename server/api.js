@@ -35,49 +35,6 @@ router.post('/api/upload', function(req, res) {
    // 	res.end(util.inspect({fields: fields, files: filesTmp}));
  	});
 });
-
-//文件上传处理api
-// app.post('/api/upload',(req,res,next) => {
-// 	console.log(req.files);
-	// // 获得文件的临时路径
-  // let tmp_path = req.files.thumbnail.path;
-  // // 指定文件上传后的目录 - 示例为"images"目录。
-  // let target_path = './images/' + req.files.thumbnail.name;
-  // // 移动文件
-  // fs.rename(tmp_path, target_path, function(err) {
-  //   if (err) throw err;
-  //   // 删除临时文件夹文件,
-  //   fs.unlink(tmp_path, function() {
-  //       if (err) throw err;
-  //       res.send('File uploaded to: ' + target_path + ' - ' + req.files.thumbnail.size + ' bytes');
-  //   });
-	// });
-	// var message = '';
-	// var form = new formidable.IncomingForm();//创建上传表单
-	// form.encoding = 'utf-8';
-	// form.uploadDir = './files';
-	// form.keepExtensions = true;
-	// form.maxFieldsSize = 2 * 1024 * 1024;
-	// form.parse(req,function(err,fields,files){
-	// 	if(err){
-	// 		console.log(err);
-	// 	}
-	// 	var filename = files.resource.name;
-	// 	//对文件名进行处理，防止上传同名文件
-	// 	var nameArray = filename.split('.');
-	// 	var type = nameArray[nameArray.length-1];
-	// 	var name = '';
-	// 	for (var i = 0; i < nameArray.length-1; i++) {
-	// 		name = name + nameArray[i];
-	// 	}
-	// 	var rand = Math.random()*100 + 900;
-	// 	var num = parseInt(rand,10);
-	// 	var avatarName = name + num + '.' + type;
-	// 	var newPath = form.uploadDir + avatarName;
-	// 	fs.renameSync(files.resource.path,newPath);//重命名
-	// 	res.send(newPath);
-	// });
-// });
 //查询登录状态
 router.get('/api/isLogin',(req,res) => {
   let account = req.session.account;
@@ -156,7 +113,7 @@ router.get('/api/isLogin',(req,res) => {
                       allData.assets = assets;
                       models.Render.find((err,renders) => {
                         allData.renders = renders;
-                        models.Login.find({type:2,account,state:0},(err,signInApply) => {
+                        models.Login.find({type:2,state:0},(err,signInApply) => {
                           allData.signInApply = signInApply;
                           res.send(allData);
                         });
@@ -268,7 +225,7 @@ router.post('/api/login',(req,res) => {
 			                      allData.assets = assets;
 			                      models.Render.find((err,renders) => {
 			                        allData.renders = renders;
-			                        models.Login.find({type:2,account,state:0},(err,signInApply) => {
+			                        models.Login.find({type:2,state:0},(err,signInApply) => {
 			                          allData.signInApply = signInApply;
 			                          res.send(allData);
 			                        });
@@ -323,10 +280,6 @@ router.post('/api/signIn',(req,res) => {
   let phone = req.body.phone;
   let type = req.body.type;
   let teacher = req.body.teacher;
-  let state = 1;
-  if(type===1){
-    state = 0;
-  }
 	var user = {
 		type : type,
 		name : name,
@@ -334,7 +287,7 @@ router.post('/api/signIn',(req,res) => {
 		password : password,
 		email : email,
 		phone : phone,
-		state : state,
+		state : 0,
 		teacher : teacher,
 		projects : new Array(),
 		time : new Date()
@@ -1106,9 +1059,6 @@ router.post('/api/uploadAcceptance',(req,res) =>{
   // let applystate = req.body.applystate;
   let cost = req.body.cost;
   let path = req.body.path;
-	console.log(id);
-	console.log(noticeId);
-	console.log(path);
   models.Patent.update({ 'id':id },{$set:{'noticeId':noticeId,'content':path,'cost':cost,'state':2}},(err) => {
   	if(err){
 	    console.log("更新失败");

@@ -19,6 +19,8 @@ import renderApply from './components/renderApply/renderApply.vue';
 import renderCheck from './components/renderCheck/renderCheck.vue';
 import assetCheck from './components/assetCheck/assetCheck.vue';
 import assetLook from './components/assetLook/assetLook.vue';
+import teacherCheck from './components/teacherCheck/teacherCheck.vue';
+import resetPassword from './components/resetPassword/resetPassword.vue';
 
 Vue.use(ElementUI);
 Vue.use(VueRouter);
@@ -39,7 +41,9 @@ let routes = [
   {path: '/renderApply', component: renderApply},
   {path: '/renderCheck', component: renderCheck},
   {path: '/assetLook', component: assetLook},
-  {path: '/assetCheck', component: assetCheck}
+  {path: '/assetCheck', component: assetCheck},
+  {path: '/teacherCheck', component: teacherCheck},
+  {path: '/resetPassword', component: resetPassword}
 ];
 
 let router = new VueRouter({
