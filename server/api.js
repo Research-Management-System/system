@@ -246,30 +246,43 @@ router.post('/api/changePassword',(req,res) => {
   let account = req.body.account;
   let password = req.body.newPassword;
   let prepassword = req.body.oldPassword;
-  models.Login.update({$and:[{'account':account},{'password':prepassword}]},{$set:{'password':req.body.newPassword}},function(err){
-    if(err){
-      console.log(err);
-      let msg = "0";
-      res.send(msg);
+  models.Login.findOne({'account':account},(err,data) => {
+    if(data && data.type !== 0){
+      models.Login.update({$and:[{'account':account},{'password':prepassword}]},{$set:{'password':req.body.newPassword}},function(err){
+          if(err){
+            console.log(err);
+            let msg = "0";
+            res.send(msg);
+          }else{
+            let msg = "1";
+            res.send(msg);
+          }
+        });
     }else{
-      let msg = "1";
-      res.send(msg);
+      console.log("修改失败请联系管理员");
+      res.send("0");
     }
   });
 });
 //重置密码down
 router.post('/api/resetPassword',(req,res) => {
 	let account = req.body.account;
-	models.Login.update({'account':account},{$set:{'password':account}},function(err){
-	  if(err){
-	    console.log(err);
-	    let msg = "0";
-	    res.send(msg);
-	  }else{
-	    let msg = "1";
-	    res.send(msg);
-	  }
-	});
+  models.Login.findOne({'account':account},(err,data) => {
+    if(data){
+      models.Login.update({'account':account},{$set:{'password':account}},function(err){
+        if(err){
+          console.log(err);
+          let msg = "0";
+          res.send(msg);
+        }else{
+          let msg = "1";
+          res.send(msg);
+        }
+      });
+    }else{
+      res.send("0");
+    }
+  });
 });
 //用户注册down
 router.post('/api/signIn',(req,res) => {
@@ -644,31 +657,39 @@ router.post('/api/gthesisApply',(req,res) => {
 	let apply = req.session.account;
 	let path = req.body.path;
 	let content = path;
-	models.Gthesis.count((err,count) => {
-		count++;
-		var id = (new Date().getFullYear())+"07"+(Array(5).join('0')+count).slice(-5);
-		var data = {
-			title : title,
-			id : id,
-			authors : authors,
-			apply : apply,
-			projectId : "",
-			teacher : teacher,
-			editor : editor,
-			state : 1,
-			content : content,
-			time : new Date()
-		};
-		models.Gthesis.create(data,(err) => {
-			if(err){
-			  console.log("创建失败");
-			  res.send("0");
-			}else{
-			  console.log("新建毕业论文"+id);
-			  res.send("1");
-			}
-		});
-	});
+  models.Sthesis.findOne({$and:[{'teacher':teacher},{'title':title},{'authors':authors}]},(err,data) => {
+    if(data){
+      console.log("该小论文已经存在");
+      res.send("0");
+    }else{
+      models.Gthesis.count((err,count) => {
+        count++;
+        var id = (new Date().getFullYear())+"07"+(Array(5).join('0')+count).slice(-5);
+        var data = {
+          title : title,
+          id : id,
+          authors : authors,
+          apply : apply,
+          projectId : "",
+          teacher : teacher,
+          editor : editor,
+          state : 1,
+          content : content,
+          time : new Date()
+        };
+        models.Gthesis.create(data,(err) => {
+          if(err){
+            console.log("创建失败");
+            res.send("0");
+          }else{
+            console.log("新建毕业论文"+id);
+            res.send("1");
+          }
+        });
+      });
+    }
+  });
+
 });
 //49行 checkGthesisApply 老师审核申请down
 router.post('/api/checkGthesisApply',(req,res) => {
