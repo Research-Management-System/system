@@ -32,7 +32,7 @@ export default {
   mounted() {
     axios.get('/api/isLogin')
     .then((response) => {
-      if(response.data){
+      if(response.data && response.data.userInfo.state != 0){
         this.isLogin = true;
         this.data = response.data;
         console.log(this.data);

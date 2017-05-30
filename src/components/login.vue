@@ -79,7 +79,13 @@
                   confirmButtonText: '确定'
                 });
               }else{
-                this.$emit("login",response.data);
+                if(response.data.userInfo.state === 0){
+                  this.$alert('账号尚未审核!', '提示', {
+                    confirmButtonText: '确定'
+                  });
+                }else{
+                  this.$emit("login",response.data);
+                }
               }
           });
         },
