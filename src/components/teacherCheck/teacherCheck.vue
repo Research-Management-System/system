@@ -1,6 +1,6 @@
 <template>
   <div class="mod-check-sign">
-    <h3>学生注册申请列表</h3>
+    <h3>教师注册申请列表</h3>
     <div class="sign-table">
       <el-table :data="signs" border style="width: 100%">
         <el-table-column prop="account" label="学号">
