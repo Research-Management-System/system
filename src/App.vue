@@ -26,6 +26,10 @@ export default {
       this.data = data;
       if(data.userInfo.type === 0){
         location.href = "/#/teacherCheck";
+      }else if(data.userInfo.type === 3){
+        location.href = "/#/gthesiseCheck";
+      }else if(data.userInfo.type === 4){
+        location.href = "/#/sthesiseCheck";
       }
     }
   },

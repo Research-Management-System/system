@@ -71,7 +71,7 @@
 
 <script>
 import axios from 'axios';
-const applyState = ['已拒绝','待教师审核','待上传最终版','待科研管理审核','xx后端设计没有4状态','审核通过'];
+const applyState = ['已拒绝','待教师审核','待上传最终版','待科研成果管理审核','xx后端设计没有4状态','审核通过'];
 export default {
   data(){
     return {

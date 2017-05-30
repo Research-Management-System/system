@@ -11,16 +11,29 @@
         </el-table-column>
         <el-table-column prop="applyState" label="申请状态">
         </el-table-column>
-        <el-table-column label="审核">
+        <el-table-column label="审核" v-if="this.data.userInfo.type === 2">
           <template scope="applys">
             <el-button
               size="small"
-              :disabled="applys.row.state != 2 && applys.row.state != 3"
+              :disabled="applys.row.state != 1"
               @click="handleApply(applys.row,2)">同意</el-button>
             <el-button
               size="small"
               type="danger"
-              :disabled="applys.row.state != 2 && applys.row.state != 3"
+              :disabled="applys.row.state != 1"
+              @click="handleApply(applys.row,0)">拒绝</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column label="审核" v-if="this.data.userInfo.type === 3">
+          <template scope="applys">
+            <el-button
+              size="small"
+              :disabled="applys.row.state != 3"
+              @click="handleApply(applys.row,2)">同意</el-button>
+            <el-button
+              size="small"
+              type="danger"
+              :disabled="applys.row.state != 3"
               @click="handleApply(applys.row,0)">拒绝</el-button>
           </template>
         </el-table-column>
@@ -33,7 +46,7 @@
 
 <script>
 import axios from 'axios';
-const applyState = ['已拒绝','待教师审核','待上传最终版','待科研管理审核','','审核通过'];
+const applyState = ['已拒绝','待教师审核','待上传最终版','待科研成果管理审核','','审核通过'];
 export default {
   data(){
     return {
