@@ -3,29 +3,29 @@
     <h3>固定资产入库申请</h3>
     <el-button class="apply-btn" type="primary" @click="assetApply = true">创建申请</el-button>
     <el-dialog title="固定资产入库申请" v-model="assetApply">
-      <el-form>
-        <el-form-item>
-          <el-input v-model="band" auto-complete="off" placeholder="设备厂商"></el-input>
+      <el-form :model="form" :rules="rules" ref="form">
+        <el-form-item prop="band">
+          <el-input v-model="form.band" auto-complete="off" placeholder="设备厂商"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input v-model="name" auto-complete="off" placeholder="设备名"></el-input>
+        <el-form-item prop="name">
+          <el-input v-model="form.name" auto-complete="off" placeholder="设备名"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input v-model="model" auto-complete="off" placeholder="设备型号"></el-input>
+        <el-form-item prop="model">
+          <el-input v-model="form.model" auto-complete="off" placeholder="设备型号"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input v-model="cost" auto-complete="off" placeholder="金额"></el-input>
+        <el-form-item prop="cost">
+          <el-input v-model="form.cost" auto-complete="off" placeholder="金额"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input v-model="projectId" auto-complete="off" placeholder="项目编号"></el-input>
+        <el-form-item prop="projectId">
+          <el-input v-model="form.projectId" auto-complete="off" placeholder="项目编号"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input v-model="teacher" auto-complete="off" placeholder="审核教师工号"></el-input>
+        <el-form-item prop="teacher">
+          <el-input v-model="form.teacher" auto-complete="off" placeholder="审核教师工号"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="assetApply = false">取 消</el-button>
-        <el-button type="primary" @click="sendApply">确 定</el-button>
+        <el-button type="primary" @click="sendApply('form')">确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog title="设备详情" class="device-details" v-model="showDetails">
@@ -129,13 +129,49 @@ import axios from 'axios';
 const applyState = ['已拒绝','待教师审核','待财务管理员审核','待上传票据及信息','待固定资产管理员审核','待财务管理员二审','审核通过'];
 export default {
   data(){
+    function validateName(rule, value, callback){
+      if (value === '') {
+        callback(new Error('请输入专利名称'));
+      } else {
+        callback();
+      }
+    };
+    function validateProjectId(rule, value, callback){
+      if (value === '') {
+        callback(new Error('请输入所属项目ID'));
+      } else if (!(/^[0-9]+$/).test(value)) {
+        callback(new Error("格式错误"));
+      } else {
+        callback();
+      }
+    };
+    function validateTeacher(rule, value, callback){
+      if (value === '') {
+        callback(new Error('请输入教师工号'));
+      } else if (!(/^(\d){6}$/).test(value)) {
+        callback(new Error("工号格式错误"));
+      } else {
+        callback();
+      }
+    };
+    function validateCost(rule, value, callback){
+      if (value === '') {
+        callback(new Error('请输入报账金额'));
+      } else if (!(/^[0-9]+$/).test(value)) {
+        callback(new Error("格式错误"));
+      } else {
+        callback();
+      }
+    };
     return {
-      band: '',
-      name: '',
-      cost: '',
-      projectId: '',
-      model: '',
-      teacher: '',
+      form: {
+        band: '',
+        name: '',
+        cost: '',
+        projectId: '',
+        model: '',
+        teacher: ''
+      },
       currentObj: {},
       assetApply: false,
       showDetails: false,
@@ -145,6 +181,26 @@ export default {
           disabledDate(time) {
             return time.getTime() < Date.now() - 8.64e7;
           }
+      },
+      rules: {
+        name:[
+            { validator: validateName, trigger: 'blur' }
+          ],
+        projectId:[
+            { validator: validateProjectId, trigger: 'blur' }
+          ],
+        band:[
+            { validator: validateName, trigger: 'blur' }
+          ],
+        model:[
+            { validator: validateName, trigger: 'blur' }
+          ],
+        teacher:[
+            { validator: validateTeacher, trigger: 'blur' }
+          ],
+        cost: [
+          { validator: validateCost, trigger: 'blur' }
+        ]
       }
     }
   },
@@ -156,27 +212,34 @@ export default {
         item.applyState = applyState[item.state];
       });
     },
-    sendApply(){
-      let data = {
-        band: this.band,
-        cost: this.cost,
-        name: this.name,
-        model: this.model,
-        teacher: this.teacher,
-        projectId: this.projectId
-      };
-      axios.post('/api/assetApply',data).then((response) => {
-        if(response.data == 1){
-          location.reload();
-        }else{
-          this.$alert('操作失败', '提示', {
-            confirmButtonText: '确定',
-            callback: action => {
-              location.reload();
-            }
-          });
-        }
-      })
+    sendApply(formName){
+      this.$refs[formName].validate((valid) => {
+          if (valid) {
+            let data = {
+              band: this.form.band,
+              cost: this.form.cost,
+              name: this.form.name,
+              model: this.form.model,
+              teacher: this.form.teacher,
+              projectId: this.form.projectId
+            };
+            axios.post('/api/assetApply',data).then((response) => {
+              if(response.data == 1){
+                location.reload();
+              }else{
+                this.$alert('操作失败', '提示', {
+                  confirmButtonText: '确定',
+                  callback: action => {
+                    location.reload();
+                  }
+                });
+              }
+            })
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
     },
     showDetail(obj){
       this.currentObj = obj;

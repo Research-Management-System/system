@@ -8,38 +8,38 @@
       <el-button type="text" class="sign-in" @click="signIn = true">注册</el-button>
     </el-card>
     <el-dialog title="用户注册" v-model="signIn">
-      <el-form class="form-box">
-        <el-form-item>
-          <el-input placeholder="姓名" type="name" auto-complete="off" v-model="name"></el-input>
+      <el-form class="form-box" :model="signInForm" :rules="rules" ref="signInForm">
+        <el-form-item prop="name">
+          <el-input placeholder="姓名" type="name" auto-complete="off" v-model="signInForm.name"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input placeholder="学/工号" type="account" auto-complete="off" v-model="signAccount"></el-input>
+        <el-form-item prop="signAccount">
+          <el-input placeholder="学/工号" type="account" auto-complete="off" v-model="signInForm.signAccount"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input placeholder="密码" type="password" auto-complete="off" v-model="signPassword"></el-input>
+        <el-form-item prop="signPassword">
+          <el-input placeholder="密码" type="password" auto-complete="off" v-model="signInForm.signPassword"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input placeholder="重复密码" type="password" auto-complete="off" v-model="repeatPassword"></el-input>
+        <el-form-item prop="repeatPassword">
+          <el-input placeholder="重复密码" type="password" auto-complete="off" v-model="signInForm.repeatPassword"></el-input>
         </el-form-item>
-        <el-form-item label="身份">
-          <el-radio-group v-model="type">
-            <el-radio label="学生"></el-radio>
-            <el-radio label="教师"></el-radio>
+        <el-form-item label="身份" prop="type">
+          <el-radio-group v-model="signInForm.type">
+            <el-radio label="1">学生</el-radio>
+            <el-radio label="2">教师</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-show="this.type === '学生'">
-          <el-input placeholder="指导教师工号" type="text" auto-complete="off" v-model="teacher"></el-input>
+        <el-form-item v-show="this.signInForm.type === '1'">
+          <el-input placeholder="指导教师工号" type="text" auto-complete="off" v-model="signInForm.teacher"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input placeholder="邮箱" type="text" auto-complete="off" v-model="email"></el-input>
+        <el-form-item prop="email">
+          <el-input placeholder="邮箱" type="text" auto-complete="off" v-model="signInForm.email"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input placeholder="电话" type="text" auto-complete="off" v-model="phone"></el-input>
+        <el-form-item prop="phone">
+          <el-input placeholder="电话" type="text" auto-complete="off" v-model="signInForm.phone"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="signIn = false">取消</el-button>
-        <el-button type="primary" @click="userSignIn">注册</el-button>
+        <el-button type="primary" @click="userSignIn('signInForm')">注册</el-button>
       </div>
     </el-dialog>
   </div>
@@ -50,18 +50,94 @@
 
     export default {
       data() {
+          function validateName(rule, value, callback){
+            if (value === '') {
+              callback(new Error('请输入姓名'));
+            } else if (!(/^[a-zA-Z0-9\u4e00-\u9fa5]+$/).test(value)) {
+              callback(new Error("姓名格式错误"));
+            } else {
+              callback();
+            }
+          };
+          function validateAccount(rule, value, callback){
+            if (value === '') {
+              callback(new Error('请输入学工号'));
+            } else if (!(/^([0-9]){6,11}$/).test(value)) {
+              callback(new Error("学工号格式错误"));
+            } else {
+              callback();
+            }
+          };
+          function validatePassword(rule, value, callback){
+            if (value === '') {
+              callback(new Error('请输入密码'));
+            } else if (!(/^([\dA-Za-z]){6,11}$/).test(value)) {
+              callback(new Error("密码格式错误，请输入6-11位字符"));
+            } else {
+              callback();
+            }
+          };
+          function validateRepeat(rule, value, callback){
+            if (value === '') {
+              callback(new Error('请再次输入密码'));
+            } else if (!(/^([\dA-Za-z]){6,11}$/).test(value)) {
+              callback(new Error("密码不匹配"));
+            } else {
+              callback();
+            }
+          };
+          function validateEmail(rule, value, callback){
+            if (value === '') {
+              callback(new Error('请输入邮箱'));
+            } else if (!(/^(\w)+(\.\w+)*@(\w)+((\.\w{2,3}){1,3})$/).test(value)) {
+              callback(new Error("邮箱格式错误"));
+            } else {
+              callback();
+            }
+          };
+          function validatePhone(rule, value, callback){
+            if (value === '') {
+              callback(new Error('请输入手机号'));
+            } else if (!(/^(\d){11}$/).test(value)) {
+              callback(new Error("手机格式错误"));
+            } else {
+              callback();
+            }
+          };
           return {
+              signInForm: {
+                name: '',
+                signAccount: '',
+                signPassword: '',
+                repeatPassword: '',
+                type: '1',
+                email: '',
+                phone: '',
+                teacher: ''
+              },
               account : '',
               password : '',
-              name: '',
-              signAccount: '',
-              signPassword: '',
-              repeatPassword: '',
-              email: '',
-              phone: '',
-              type: '',
-              teacher: '',
-              signIn: false
+              signIn: false,
+              rules: {
+                name:[
+                    { validator: validateName, trigger: 'blur' }
+                  ],
+                signAccount:[
+                    { validator: validateAccount, trigger: 'blur' }
+                  ],
+                signPassword:[
+                    { validator: validatePassword, trigger: 'blur' }
+                  ],
+                repeatPassword:[
+                    { validator: validateRepeat, trigger: 'blur' }
+                  ],
+                email:[
+                    { validator: validateEmail, trigger: 'blur' }
+                  ],
+                phone:[
+                    { validator: validatePhone, trigger: 'blur' }
+                  ]
+              }
           }
       },
       methods:{
@@ -89,37 +165,44 @@
               }
           });
         },
-        userSignIn() {
-          let data = {
-            name: this.name,
-            account: this.signAccount,
-            password: this.signPassword,
-            repeatPassword: this.repeatPassword,
-            email: this.email,
-            phone: this.phone,
-            teacher: this.teacher,
-            state: 0
-          };
-          data.type = this.type==="学生"?1:2;
-          console.log(data);
-          axios.post('/api/signIn',data).then((response) => {
-            if(response.data === 1){
-              this.$alert('注册成功!', '提示', {
-                confirmButtonText: '确定',
-                callback: action => {
-                  location.reload();
-                }
-              });
-            }else{
-              this.$alert('注册失败,请重新注册。', '提示', {
-                confirmButtonText: '确定',
-                callback: action => {
-                  location.reload();
-                }
-              });
-            }
-          });
-        }
+        userSignIn(formName) {
+          this.$refs[formName].validate((valid) => {
+              if (valid) {
+                let data = {
+                  name: this.signInForm.name,
+                  account: this.signInForm.signAccount,
+                  password: this.signInForm.signPassword,
+                  repeatPassword: this.signInForm.repeatPassword,
+                  email: this.signInForm.email,
+                  phone: this.signInForm.phone,
+                  teacher: this.signInForm.teacher,
+                  type: this.signInForm.type,
+                  state: 0
+                };
+                console.log(data);
+                axios.post('/api/signIn',data).then((response) => {
+                  if(response.data === 1){
+                    this.$alert('注册成功!', '提示', {
+                      confirmButtonText: '确定',
+                      callback: action => {
+                        location.reload();
+                      }
+                    });
+                  }else{
+                    this.$alert('注册失败,请重新注册。', '提示', {
+                      confirmButtonText: '确定',
+                      callback: action => {
+                        location.reload();
+                      }
+                    });
+                  }
+                });
+              } else {
+                console.log('error submit!!');
+                return false;
+              }
+            });
+          }
       }
     }
 </script>

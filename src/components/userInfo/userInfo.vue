@@ -35,20 +35,20 @@
       </div>
     </el-dialog>
     <el-dialog title="修改个人信息" v-model="changeInformation">
-      <el-form class="form-box">
-        <el-form-item>
-          <el-input placeholder="姓名" type="text" auto-complete="off" v-model="name"></el-input>
+      <el-form class="form-box" id="changeInfo" :model="form" :rules="rules" ref="form">
+        <el-form-item prop="name">
+          <el-input placeholder="姓名" type="text" auto-complete="off" v-model="form.name"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input placeholder="邮箱" type="text" auto-complete="off" v-model="email"></el-input>
+        <el-form-item prop="email">
+          <el-input placeholder="邮箱" type="text" auto-complete="off" v-model="form.email"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input placeholder="电话" type="text" auto-complete="off" v-model="phone"></el-input>
+        <el-form-item prop="phone">
+          <el-input placeholder="电话" type="text" auto-complete="off" v-model="form.phone"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="changeInformation = false">取 消</el-button>
-        <el-button type="primary" @click="changeInfo">确 定</el-button>
+        <el-button type="primary" @click="changeInfo('form')">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -59,10 +59,39 @@ import axios from 'axios';
 
 export default {
   data() {
+    function validateName(rule, value, callback){
+      if (value === '') {
+        callback(new Error('请输入姓名'));
+      } else if (!(/^[a-zA-Z0-9\u4e00-\u9fa5]+$/).test(value)) {
+        callback(new Error("姓名格式错误"));
+      } else {
+        callback();
+      }
+    };
+    function validateEmail(rule, value, callback){
+      if (value === '') {
+        callback(new Error('请输入邮箱'));
+      } else if (!(/^(\w)+(\.\w+)*@(\w)+((\.\w{2,3}){1,3})$/).test(value)) {
+        callback(new Error("邮箱格式错误"));
+      } else {
+        callback();
+      }
+    };
+    function validatePhone(rule, value, callback){
+      if (value === '') {
+        callback(new Error('请输入手机号'));
+      } else if (!(/^(\d){11}$/).test(value)) {
+        callback(new Error("手机格式错误"));
+      } else {
+        callback();
+      }
+    };
     return {
-      name: this.userInfo.name,
-      email: this.userInfo.email,
-      phone: this.userInfo.phone,
+      form:{
+        name: this.userInfo.name,
+        email: this.userInfo.email,
+        phone: this.userInfo.phone
+      },
       oldPassword: '',
       newPassword: '',
       repeatPassword: '',
@@ -71,7 +100,18 @@ export default {
       repeatErr: false,
       type: ["根管理员","学生","教师","科研成果管理员","财务管理员","固定资产管理员"],
       changePassword: false,
-      changeInformation: false
+      changeInformation: false,
+      rules: {
+        name:[
+            { validator: validateName, trigger: 'blur' }
+          ],
+        email:[
+            { validator: validateEmail, trigger: 'blur' }
+          ],
+        phone:[
+            { validator: validatePhone, trigger: 'blur' }
+          ]
+      }
     };
   },
   props:['userInfo'],
@@ -133,32 +173,39 @@ export default {
       this.repeatErr = false;
       this.newErr = false;
     },
-    changeInfo() {
-      let data = {
-        account: this.userInfo.account,
-        name: this.name,
-        email: this.email,
-        phone: this.phone
-      };
-      console.log(data);
-      axios.post('/api/changeUserinfo',data).then((response) => {
-        console.log(response.data);
-        if(response.data === 1){
-          this.$alert('修改成功', '修改信息', {
-            confirmButtonText: '确定',
-            callback: action => {
-              location.reload();
-            }
-          });
-        }else{
-          this.$alert('修改失败,请重新修改', '修改信息', {
-            confirmButtonText: '确定',
-            callback: action => {
-              location.reload();
-            }
-          });
-        }
-      })
+    changeInfo(formName) {
+      this.$refs[formName].validate((valid) => {
+          if (valid) {
+            let data = {
+              account: this.userInfo.account,
+              name: this.name,
+              email: this.email,
+              phone: this.phone
+            };
+            console.log(data);
+            axios.post('/api/changeUserinfo',data).then((response) => {
+              console.log(response.data);
+              if(response.data === 1){
+                this.$alert('修改成功', '修改信息', {
+                  confirmButtonText: '确定',
+                  callback: action => {
+                    location.reload();
+                  }
+                });
+              }else{
+                this.$alert('修改失败,请重新修改', '修改信息', {
+                  confirmButtonText: '确定',
+                  callback: action => {
+                    location.reload();
+                  }
+                });
+              }
+            })
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
     }
   }
 }
@@ -194,6 +241,11 @@ export default {
         .el-form-item{
           margin-bottom: 10px;
         }
+      }
+    }
+    #changeInfo{
+      .el-form-item{
+        margin-bottom: 20px;
       }
     }
   }

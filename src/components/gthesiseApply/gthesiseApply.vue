@@ -3,18 +3,18 @@
     <h3>毕业论文申请</h3>
     <el-button class="apply-btn" type="primary" @click="gthesiseApply = true">创建申请</el-button>
     <el-dialog title="毕业论文申请" v-model="gthesiseApply">
-      <el-form>
-        <el-form-item>
-          <el-input v-model="title" auto-complete="off" placeholder="论文标题"></el-input>
+      <el-form :model="form" :rules="rules" ref="form">
+        <el-form-item prop="title">
+          <el-input v-model="form.title" auto-complete="off" placeholder="论文标题"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input v-model="authors" auto-complete="off" placeholder="论文作者"></el-input>
+        <el-form-item prop="authors">
+          <el-input v-model="form.authors" auto-complete="off" placeholder="论文作者"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input v-model="teacher" auto-complete="off" placeholder="指导教师工号"></el-input>
+        <el-form-item prop="teacher">
+          <el-input v-model="form.teacher" auto-complete="off" placeholder="指导教师工号"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input v-model="editor" auto-complete="off" placeholder="审核教师工号"></el-input>
+        <el-form-item prop="editor">
+          <el-input v-model="form.editor" auto-complete="off" placeholder="审核教师工号"></el-input>
         </el-form-item>
         <el-form-item label="论文上传">
           <form action="/api/upload" method="post" id="fileUpload" enctype='multipart/form-data'>
@@ -24,7 +24,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="gthesiseApply = false">取 消</el-button>
-        <el-button type="primary" @click="sendApply">确 定</el-button>
+        <el-button type="primary" @click="sendApply('form')">确 定</el-button>
       </div>
     </el-dialog>
     <h3 v-if="this.data.userInfo.type ===1">我的申请</h3>
@@ -74,14 +74,55 @@ import axios from 'axios';
 const applyState = ['已拒绝','待教师审核','待上传最终版','待科研成果管理审核','xx后端设计没有4状态','审核通过'];
 export default {
   data(){
+    function validateTitle(rule, value, callback){
+      if (value === '') {
+        callback(new Error('请输入论文题目'));
+      } else {
+        callback();
+      }
+    };
+    function validateAuthors(rule, value, callback){
+      if (value === '') {
+        callback(new Error('请输入论文作者'));
+      } else if (!(/^[a-zA-Z0-9\u4e00-\u9fa5]+$/).test(value)) {
+        callback(new Error("作者格式错误"));
+      } else {
+        callback();
+      }
+    };
+    function validateTeacher(rule, value, callback){
+      if (value === '') {
+        callback(new Error('请输入教师工号'));
+      } else if (!(/^(\d){6}$/).test(value)) {
+        callback(new Error("工号格式错误"));
+      } else {
+        callback();
+      }
+    };
     return {
-      title: '',
-      authors: '',
-      teacher: '',
-      editor: '',
+      form:{
+        title: '',
+        authors: '',
+        teacher: '',
+        editor: ''
+      },
       gthesiseApply: false,
       gthesises: this.data.gthesises.slice(0,10),
-      gthesiseLength: this.data.gthesises.length
+      gthesiseLength: this.data.gthesises.length,
+      rules: {
+        title:[
+            { validator: validateTitle, trigger: 'blur' }
+          ],
+        authors:[
+            { validator: validateAuthors, trigger: 'blur' }
+          ],
+        teacher:[
+            { validator: validateTeacher, trigger: 'blur' }
+          ],
+        editor:[
+            { validator: validateTeacher, trigger: 'blur' }
+          ]
+      }
     }
   },
   props: ['data'],
@@ -92,39 +133,52 @@ export default {
         item.applyState = applyState[item.state];
       });
     },
-    sendApply(){
+    sendApply(formName){
       let data = {
-        title: this.title,
-        authors: this.authors,
-        teacher: this.teacher,
-        editor: this.editor
+        title: this.form.title,
+        authors: this.form.authors,
+        teacher: this.form.teacher,
+        editor: this.form.editor
       };
       let file = document.getElementById("upload").files[0];
-      let formdata = new FormData();
-      formdata.append('inputFile',file);
-      formdata.append('type','1');//type1毕业论文
-      axios({
-          url:'/api/upload',
-          method:'post',
-          data:formdata,
-          headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-      }).then((res)=>{
-        data.path = res.data.filePath;
-        axios.post('/api/gthesisApply',data).then((response) => {
-          console.log(response.data);
-          if(response.data === 1){
-            console.log("申请成功");
-            location.reload();
-          }else{
-            this.$alert('操作失败', '提示', {
-              confirmButtonText: '确定',
-              callback: action => {
-                location.reload();
-              }
-            });
-          }
+      if(!file){
+        this.$alert('未选择文件', '提示', {
+          confirmButtonText: '确定'
         });
-      });
+      }else{
+        this.$refs[formName].validate((valid) => {
+            if (valid) {
+              let formdata = new FormData();
+              formdata.append('inputFile',file);
+              formdata.append('type','1');//type1毕业论文
+              axios({
+                  url:'/api/upload',
+                  method:'post',
+                  data:formdata,
+                  headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+              }).then((res)=>{
+                data.path = res.data.filePath;
+                axios.post('/api/gthesisApply',data).then((response) => {
+                  console.log(response.data);
+                  if(response.data === 1){
+                    console.log("申请成功");
+                    location.reload();
+                  }else{
+                    this.$alert('操作失败', '提示', {
+                      confirmButtonText: '确定',
+                      callback: action => {
+                        location.reload();
+                      }
+                    });
+                  }
+                });
+              });
+            } else {
+              console.log('error submit!!');
+              return false;
+            }
+        });
+      }
     },
     downloadFile(id,choice){
       let url = '/api/downloadFiles?id=' + id +'&choice=' + choice;
