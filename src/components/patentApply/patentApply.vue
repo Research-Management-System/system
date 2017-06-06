@@ -28,7 +28,7 @@
     <h3>我的申请</h3>
     <div class="patent-table">
       <el-table :data="patents" border style="width: 100%">
-        <el-table-column prop="projectId" label="专利编号">
+        <el-table-column prop="projectId" label="所属项目ID">
         </el-table-column>
         <el-table-column prop="name" label="专利名称">
         </el-table-column>
